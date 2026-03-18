@@ -1,0 +1,13 @@
+{
+  "version": "3.0",
+  "fecha": "17/03/2026",
+  "notas": "Version inicial publicada en GitHub.",
+  "archivos": [
+    "Ingreso_Masivo_XPES.pyw",
+    "main_local.py",
+    "logica_local.py",
+    "indexar.py",
+    "servicios_variantes.py",
+    "test.py"
+  ]
+}
