@@ -46,7 +46,7 @@ CONFIG_PASS = "7070"
 # ── VERSIÓN Y ACTUALIZACIONES ──────────────────────────────────────────────────
 VERSION_ACTUAL = "3.0"
 # Cambia estos valores por tu usuario y repositorio de GitHub
-GITHUB_USER    = "TU_USUARIO"
+GITHUB_USER    = "wichoo2"
 GITHUB_REPO    = "ingreso-masivo-xpress"
 GITHUB_BRANCH  = "main"
 # URL del archivo version.json en tu repo
