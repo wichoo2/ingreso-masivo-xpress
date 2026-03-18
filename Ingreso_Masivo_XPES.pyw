@@ -22,16 +22,30 @@ def _check_deps():
     missing = []
     try: import openpyxl
     except ImportError: missing.append("openpyxl")
-    if missing:
-        r = tk.Tk(); r.withdraw()
-        ok = messagebox.askyesno("Dependencias",
-            "Faltan modulos:\n\n  {}\n\nInstalar ahora?".format(
-                ", ".join(missing)))
-        r.destroy()
-        if ok:
-            for pkg in missing:
-                subprocess.check_call([sys.executable, "-m", "pip", "install", pkg])
-        else: sys.exit(0)
+    if not missing:
+        return
+
+    # Buscar Python real — el _internal del launcher o el del sistema
+    import shutil as _sh
+    _base = os.path.dirname(os.path.abspath(__file__))
+    _python = (
+        os.path.join(_base, "_internal", "pythonw.exe") if os.path.isfile(
+            os.path.join(_base, "_internal", "pythonw.exe")) else
+        os.path.join(_base, "_internal", "python.exe") if os.path.isfile(
+            os.path.join(_base, "_internal", "python.exe")) else
+        _sh.which("python") or _sh.which("pythonw") or sys.executable
+    )
+
+    r = tk.Tk(); r.withdraw()
+    ok = messagebox.askyesno("Dependencias",
+        "Faltan modulos:\n\n  {}\n\nInstalar ahora?".format(
+            ", ".join(missing)))
+    r.destroy()
+    if ok:
+        for pkg in missing:
+            subprocess.check_call([_python, "-m", "pip", "install", pkg])
+    else:
+        sys.exit(0)
 
 _check_deps()
 
@@ -42,28 +56,6 @@ INDEXAR_PY  = os.path.join(BASE_DIR, "indexar.py")
 CONFIG_PY   = os.path.join(BASE_DIR, "config_local.py")
 STATS_FILE  = os.path.join(BASE_DIR, "ultimo_resultado.json")
 CONFIG_PASS = "7070"
-
-# ── VERSIÓN Y ACTUALIZACIONES ──────────────────────────────────────────────────
-VERSION_ACTUAL = "3.0"
-# Cambia estos valores por tu usuario y repositorio de GitHub
-GITHUB_USER    = "wichoo2"
-GITHUB_REPO    = "ingreso-masivo-xpress"
-GITHUB_BRANCH  = "main"
-# URL del archivo version.json en tu repo
-URL_VERSION    = "https://raw.githubusercontent.com/{}/{}/{}/version.json".format(
-                    GITHUB_USER, GITHUB_REPO, GITHUB_BRANCH)
-# URL base para descargar archivos individuales
-URL_BASE_RAW   = "https://raw.githubusercontent.com/{}/{}/{}/".format(
-                    GITHUB_USER, GITHUB_REPO, GITHUB_BRANCH)
-# Archivos que se actualizan (config_local.py se excluye para no borrar rutas)
-ARCHIVOS_ACTUALIZAR = [
-    "Ingreso_Masivo_XPES.pyw",
-    "main_local.py",
-    "logica_local.py",
-    "indexar.py",
-    "servicios_variantes.py",
-    "test.py",
-]
 
 # ── PALETA XPRESS ─────────────────────────────────────────────────────────────
 BG      = "#0a0a0f"
@@ -139,13 +131,10 @@ class App(tk.Tk):
         self._pulse_after    = None
         self._total_filas    = 0
         self._proc_filas     = 0
-        self._eta_after      = None
-        self._tiempos_fila   = []
-        self._update_info    = None   # dict con info de update disponible
+        self._eta_after      = None   # handle para cancelar tick ETA
+        self._tiempos_fila   = []     # lista de timestamps por fila procesada
         self._build_ui()
         self.bind("<F5>", lambda e: self._ejecutar())
-        # Verificar actualizaciones en segundo plano al iniciar
-        threading.Thread(target=self._check_update_bg, daemon=True).start()
 
     # ── BUILD UI ──────────────────────────────────────────────────────────────
     def _build_ui(self):
@@ -209,13 +198,7 @@ class App(tk.Tk):
         # Info abajo del sidebar
         info = tk.Frame(sb, bg=BG2)
         info.pack(side="bottom", fill="x", padx=16, pady=14)
-
-        # Banner de actualización (oculto por defecto)
-        self._update_banner = tk.Frame(info, bg=BG2)
-        self._update_banner.pack(fill="x", pady=(0,8))
-        self._update_banner.pack_forget()  # oculto hasta que haya update
-
-        tk.Label(info, text="F5 ejecutar  |  v{}".format(VERSION_ACTUAL), bg=BG2,
+        tk.Label(info, text="F5 ejecutar  |  v3.0", bg=BG2,
                  fg=WHITE4, font=("Segoe UI",8)).pack(anchor="w")
         tk.Label(info, text="Xpress El Salvador 2026", bg=BG2,
                  fg=WHITE4, font=("Segoe UI",7)).pack(anchor="w", pady=(2,0))
@@ -1813,216 +1796,6 @@ class App(tk.Tk):
                 continue
             icono, titulo, detalle, color = item
             self._diag_row(frame, icono, titulo, detalle, color)
-
-    # ── SISTEMA DE ACTUALIZACIONES ───────────────────────────────────────────
-    def _check_update_bg(self):
-        """Verifica en background si hay nueva version en GitHub."""
-        try:
-            import urllib.request, json as _json
-            req = urllib.request.Request(
-                URL_VERSION,
-                headers={"User-Agent": "IngresoMasivoXpress/{}".format(VERSION_ACTUAL)})
-            with urllib.request.urlopen(req, timeout=6) as r:
-                data = _json.loads(r.read().decode())
-            version_nueva  = data.get("version", "")
-            notas          = data.get("notas", "")
-            fecha_release  = data.get("fecha", "")
-            archivos_github = data.get("archivos", ARCHIVOS_ACTUALIZAR)
-
-            if version_nueva and version_nueva != VERSION_ACTUAL:
-                self._update_info = {
-                    "version":  version_nueva,
-                    "notas":    notas,
-                    "fecha":    fecha_release,
-                    "archivos": archivos_github,
-                }
-                self.after(0, self._mostrar_banner_update)
-        except Exception:
-            pass  # Sin internet o repo no configurado — silencioso
-
-    def _mostrar_banner_update(self):
-        """Muestra el banner de actualización en el sidebar."""
-        if not self._update_info:
-            return
-        # Limpiar banner anterior
-        for w in self._update_banner.winfo_children():
-            w.destroy()
-
-        ver = self._update_info["version"]
-
-        # Fondo verde destacado
-        bann = tk.Frame(self._update_banner, bg="#0a3d1f",
-                        highlightbackground=GREEN, highlightthickness=1)
-        bann.pack(fill="x")
-        tk.Frame(bann, bg=GREEN, height=2).pack(fill="x")
-
-        inner = tk.Frame(bann, bg="#0a3d1f", padx=10, pady=8)
-        inner.pack(fill="x")
-
-        tk.Label(inner, text="Nueva version disponible", bg="#0a3d1f",
-                 fg=GREEN, font=("Segoe UI",8,"bold")).pack(anchor="w")
-        tk.Label(inner, text="v{}  →  v{}".format(VERSION_ACTUAL, ver),
-                 bg="#0a3d1f", fg=WHITE3, font=("Segoe UI",8)).pack(anchor="w", pady=(1,4))
-
-        tk.Button(inner, text="Actualizar ahora",
-                  bg=GREEN, fg="#0a3d1f", font=("Segoe UI",8,"bold"),
-                  relief="flat", cursor="hand2", bd=0,
-                  padx=10, pady=4, activebackground="#00c87d",
-                  command=self._confirmar_update).pack(anchor="w")
-
-        self._update_banner.pack(fill="x", pady=(0,8))
-
-    def _confirmar_update(self):
-        """Muestra dialogo de confirmacion antes de actualizar."""
-        if not self._update_info:
-            return
-        info = self._update_info
-        dlg = tk.Toplevel(self)
-        dlg.title("Actualizar")
-        dlg.geometry("460x340")
-        dlg.configure(bg=BG2)
-        dlg.resizable(False, False)
-        dlg.grab_set()
-        dlg.transient(self)
-
-        tk.Frame(dlg, bg=GREEN, height=3).pack(fill="x")
-
-        tk.Label(dlg, text="Actualización disponible",
-                 bg=BG2, fg=WHITE, font=("Segoe UI",13,"bold")).pack(pady=(18,4))
-        tk.Label(dlg, text="v{}  →  v{}".format(VERSION_ACTUAL, info["version"]),
-                 bg=BG2, fg=GREEN, font=("Segoe UI",11,"bold")).pack()
-
-        if info.get("fecha"):
-            tk.Label(dlg, text="Fecha: {}".format(info["fecha"]),
-                     bg=BG2, fg=WHITE4, font=("Segoe UI",8)).pack(pady=(4,0))
-
-        # Notas de la versión
-        if info.get("notas"):
-            notas_f = tk.Frame(dlg, bg=BG4,
-                               highlightbackground=BORDER2, highlightthickness=1)
-            notas_f.pack(fill="x", padx=24, pady=12)
-            tk.Label(notas_f, text="Novedades:", bg=BG4, fg=WHITE3,
-                     font=("Segoe UI",8,"bold")).pack(anchor="w", padx=10, pady=(8,2))
-            tk.Label(notas_f, text=info["notas"], bg=BG4, fg=WHITE3,
-                     font=("Segoe UI",8), wraplength=380,
-                     justify="left").pack(anchor="w", padx=10, pady=(0,8))
-
-        # Archivos a actualizar
-        n_arch = len(info.get("archivos", ARCHIVOS_ACTUALIZAR))
-        tk.Label(dlg, text="Se actualizarán {} archivos. config_local.py NO se toca.".format(n_arch),
-                 bg=BG2, fg=WHITE4, font=("Segoe UI",7),
-                 wraplength=400).pack(pady=(0,4))
-        tk.Label(dlg, text="El programa se reiniciará automáticamente.",
-                 bg=BG2, fg=YELLOW, font=("Segoe UI",8)).pack()
-
-        bf = tk.Frame(dlg, bg=BG2)
-        bf.pack(pady=14)
-        tk.Button(bf, text="Cancelar", bg=BG3, fg=WHITE3,
-                  font=UI_SM, relief="flat", cursor="hand2",
-                  bd=0, padx=14, pady=6, activebackground=BG4,
-                  command=dlg.destroy).pack(side="left", padx=4)
-        tk.Button(bf, text="Actualizar e reiniciar", bg=GREEN, fg=BG,
-                  font=UI_B, relief="flat", cursor="hand2",
-                  bd=0, padx=18, pady=6, activebackground="#00c87d",
-                  command=lambda: [dlg.destroy(), self._ejecutar_update()]).pack(side="left", padx=4)
-
-    def _ejecutar_update(self):
-        """Descarga todos los archivos nuevos y reinicia el programa."""
-        if not self._update_info:
-            return
-
-        dlg = tk.Toplevel(self)
-        dlg.title("Actualizando...")
-        dlg.geometry("420x220")
-        dlg.configure(bg=BG2)
-        dlg.resizable(False, False)
-        dlg.grab_set()
-        dlg.transient(self)
-
-        tk.Frame(dlg, bg=GREEN, height=3).pack(fill="x")
-        tk.Label(dlg, text="Descargando actualización...", bg=BG2, fg=WHITE,
-                 font=("Segoe UI",12,"bold")).pack(pady=(20,8))
-
-        lbl_arch = tk.Label(dlg, text="", bg=BG2, fg=WHITE3, font=("Segoe UI",8))
-        lbl_arch.pack()
-
-        sty = ttk.Style()
-        sty.configure("Upd.Horizontal.TProgressbar",
-                       troughcolor=BG3, background=GREEN,
-                       bordercolor=BORDER, thickness=6)
-        prog = ttk.Progressbar(dlg, style="Upd.Horizontal.TProgressbar",
-                                mode="determinate", maximum=100)
-        prog.pack(fill="x", padx=30, pady=12)
-
-        lbl_estado = tk.Label(dlg, text="", bg=BG2, fg=WHITE4, font=("Segoe UI",8))
-        lbl_estado.pack()
-
-        def _do_update():
-            import urllib.request, shutil
-            archivos = self._update_info.get("archivos", ARCHIVOS_ACTUALIZAR)
-            total    = len(archivos)
-            errores  = []
-
-            for i, nombre in enumerate(archivos, 1):
-                # Nunca tocar config_local.py
-                if nombre == "config_local.py":
-                    continue
-                try:
-                    url      = URL_BASE_RAW + nombre
-                    ruta_dst = os.path.join(BASE_DIR, nombre)
-                    ruta_tmp = ruta_dst + ".update"
-
-                    self.after(0, lbl_arch.configure,  {"text": "Descargando: {}".format(nombre)})
-                    self.after(0, lbl_estado.configure, {"text": "{}/{}".format(i, total)})
-                    self.after(0, prog.configure,       {"value": i / total * 90})
-
-                    req = urllib.request.Request(
-                        url, headers={"User-Agent": "IngresoMasivoXpress"})
-                    with urllib.request.urlopen(req, timeout=15) as r:
-                        with open(ruta_tmp, "wb") as f:
-                            f.write(r.read())
-
-                    # Reemplazar solo si la descarga fue exitosa
-                    if os.path.isfile(ruta_tmp) and os.path.getsize(ruta_tmp) > 0:
-                        if os.path.isfile(ruta_dst):
-                            shutil.copy2(ruta_dst, ruta_dst + ".bak")
-                        os.replace(ruta_tmp, ruta_dst)
-                    else:
-                        errores.append("{}: archivo vacío".format(nombre))
-                        if os.path.isfile(ruta_tmp):
-                            os.remove(ruta_tmp)
-
-                except Exception as ex:
-                    errores.append("{}: {}".format(nombre, ex))
-                    if os.path.isfile(ruta_dst + ".update"):
-                        try: os.remove(ruta_dst + ".update")
-                        except: pass
-
-            self.after(0, prog.configure, {"value": 100})
-
-            if errores:
-                self.after(0, lbl_arch.configure,
-                           {"text": "Errores en {} archivo(s)".format(len(errores))})
-                self.after(0, lbl_estado.configure,
-                           {"text": "\n".join(errores[:3])})
-                self.after(0, messagebox.showerror, "Error al actualizar",
-                           "No se pudieron descargar:\n" + "\n".join(errores))
-            else:
-                self.after(0, lbl_arch.configure,  {"text": "Actualización completa"})
-                self.after(0, lbl_estado.configure, {"text": "Reiniciando..."})
-                self.after(1500, self._reiniciar_app)
-
-        threading.Thread(target=_do_update, daemon=True).start()
-
-    def _reiniciar_app(self):
-        """Reinicia el programa ejecutando el script nuevamente."""
-        try:
-            subprocess.Popen([sys.executable, os.path.abspath(__file__)],
-                             cwd=BASE_DIR)
-        except Exception as e:
-            messagebox.showerror("Error", "No se pudo reiniciar:\n{}".format(e))
-            return
-        self.destroy()
 
 
 if __name__ == "__main__":
