@@ -123,7 +123,7 @@ def _coincide_enc(enc_norm, palabras_exactas):
 
 def detectar_cols_especiales(ws) -> dict:
     """
-    Detecta columnas especiales leyendo encabezados en fila 5.
+    Detecta columnas especiales leyendo encabezados en la fila de encabezado real.
     Usa coincidencia de PALABRA COMPLETA para evitar falsos positivos.
 
     Libros Metrogalerias   -> tienen "TIPO SERVICIO" o "MUNIC" -> col_q
@@ -145,8 +145,10 @@ def detectar_cols_especiales(ws) -> dict:
 
     resultado = {"tipo_q": "NINGUNO", "col_q": 0, "col_paq": 0, "col_oid": 0}
 
+    fila_enc = _buscar_fila_encabezado(ws)
+
     for col in range(1, 60):
-        raw = ws.cell(row=FILA_ENCABEZADO, column=col).value
+        raw = ws.cell(row=fila_enc, column=col).value
         if raw is None:
             continue
         enc_n = _enc_norm_kw(raw)
@@ -197,14 +199,35 @@ def _get_enc_norm():
     return _ENCABEZADOS_NORM
 
 
+def _buscar_fila_encabezado(ws) -> int:
+    """
+    Busca la fila del encabezado buscando F.RECOLECTA en las primeras 15 filas.
+    Devuelve el numero de fila encontrado, o FILA_ENCABEZADO si no encuentra.
+    """
+    clave = "F.RECOLECTA"
+    clave_norm = _norm_enc(clave)
+    for fila in range(1, 16):
+        for col in range(1, 25):
+            val = ws.cell(row=fila, column=col).value
+            if val and _norm_enc(str(val)) == clave_norm:
+                return fila
+    return FILA_ENCABEZADO
+
+
 def hoja_valida(ws) -> bool:
-    """Validacion exacta de encabezados — sin normalizacion, sin tolerancia."""
+    """Valida encabezados buscando la fila dinamicamente."""
+    fila_enc = _buscar_fila_encabezado(ws)
     for col_1based, esperado in ENCABEZADOS_VALIDOS.items():
-        actual = str(ws.cell(row=FILA_ENCABEZADO,
+        actual = str(ws.cell(row=fila_enc,
                              column=col_1based).value or "").strip().upper()
         if actual != esperado.upper():
             return False
     return True
+
+
+def get_fila_encabezado(ws) -> int:
+    """Devuelve la fila real del encabezado en esta hoja."""
+    return _buscar_fila_encabezado(ws)
 
 # =============================================================================
 # COLOR AMARILLO
@@ -247,13 +270,14 @@ def _es_valor_real(v) -> bool:
 # Usa iter_rows vectorizado en el rango D:J — mas rapido que cell() por celda
 # =============================================================================
 def ultima_fila_con_datos(ws) -> int:
-    col_ini = COL_DATOS_INI
-    col_fin = COL_DATOS_INI + 6
-    ultima  = FILA_DATOS_DEST - 1
+    col_ini    = COL_DATOS_INI
+    col_fin    = COL_DATOS_INI + 6
+    fila_datos = _buscar_fila_encabezado(ws) + 1
+    ultima     = fila_datos - 1
     for row_idx, row in enumerate(
-            ws.iter_rows(min_row=FILA_DATOS_DEST, max_row=ws.max_row,
+            ws.iter_rows(min_row=fila_datos, max_row=ws.max_row,
                          min_col=col_ini, max_col=col_fin, values_only=True),
-            start=FILA_DATOS_DEST):
+            start=fila_datos):
         if any(_es_valor_real(v) for v in row):
             ultima = row_idx
     return ultima
@@ -262,7 +286,8 @@ def ultima_fila_con_datos(ws) -> int:
 # PRIMERA FILA LIBRE
 # =============================================================================
 def primera_fila_libre(ws, fila_base: int) -> int:
-    fila    = max(fila_base, FILA_DATOS_DEST)
+    fila_datos = _buscar_fila_encabezado(ws) + 1
+    fila    = max(fila_base, fila_datos)
     col_ini = COL_DATOS_INI
     col_fin = COL_DATOS_INI + 6
     limite  = fila + 5000
@@ -288,7 +313,8 @@ def primera_fila_libre_rapida(ws, fila_base: int) -> int:
     Usar cuando fila_base viene del cache (ya es correcta o muy cerca).
     Fallback a primera_fila_libre si no encuentra en 20 filas.
     """
-    fila   = max(fila_base, FILA_DATOS_DEST)
+    fila_datos = _buscar_fila_encabezado(ws) + 1
+    fila   = max(fila_base, fila_datos)
     limite = fila + 20
     while fila < limite:
         v = ws.cell(row=fila, column=COL_DATOS_INI).value
@@ -330,8 +356,8 @@ def encontrar_col_comentario(ws, fila: int) -> int:
 # =============================================================================
 def cargar_ids_destino(ws) -> dict:
     ids = {}
-    col_idx = COL_ID - 1  # iter_rows devuelve tuplas 0-indexed
-    for row in ws.iter_rows(min_row=FILA_DATOS_DEST, max_row=ws.max_row,
+    fila_datos = _buscar_fila_encabezado(ws) + 1
+    for row in ws.iter_rows(min_row=fila_datos, max_row=ws.max_row,
                              min_col=COL_ID, max_col=COL_ID, values_only=True):
         raw = row[0]
         if raw is not None:

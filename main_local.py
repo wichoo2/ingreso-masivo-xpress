@@ -169,8 +169,12 @@ def cargar_libro(ruta, clave):
     cols_esp = logica.detectar_cols_especiales(ws_valida)
     ids      = logica.cargar_ids_destino(ws_valida)
 
+    # Fila de encabezado dinamica — puede ser 5 o 6 segun el libro
+    fila_enc_real  = logica.get_fila_encabezado(ws_valida)
+    fila_datos_ini = fila_enc_real + 1
+
     nombres_cole = set()
-    for row in ws_valida.iter_rows(min_row=FILA_DATOS_DEST, max_row=ws_valida.max_row,
+    for row in ws_valida.iter_rows(min_row=fila_datos_ini, max_row=ws_valida.max_row,
                                     min_col=5, max_col=5, values_only=True):
         raw = row[0]
         if raw is None:
