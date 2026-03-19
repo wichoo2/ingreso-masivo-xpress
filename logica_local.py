@@ -199,19 +199,33 @@ def _get_enc_norm():
     return _ENCABEZADOS_NORM
 
 
+_CACHE_FILA_ENC = {}  # id(ws) -> fila encabezado
+
 def _buscar_fila_encabezado(ws) -> int:
     """
     Busca la fila del encabezado buscando F.RECOLECTA en las primeras 15 filas.
-    Devuelve el numero de fila encontrado, o FILA_ENCABEZADO si no encuentra.
+    Cachea el resultado por worksheet para no recalcular en cada operacion.
     """
-    clave = "F.RECOLECTA"
+    ws_id = id(ws)
+    if ws_id in _CACHE_FILA_ENC:
+        return _CACHE_FILA_ENC[ws_id]
+
+    clave      = "F.RECOLECTA"
     clave_norm = _norm_enc(clave)
+    fila_enc   = FILA_ENCABEZADO  # valor por defecto
+
     for fila in range(1, 16):
         for col in range(1, 25):
             val = ws.cell(row=fila, column=col).value
             if val and _norm_enc(str(val)) == clave_norm:
-                return fila
-    return FILA_ENCABEZADO
+                fila_enc = fila
+                break
+        else:
+            continue
+        break
+
+    _CACHE_FILA_ENC[ws_id] = fila_enc
+    return fila_enc
 
 
 def hoja_valida(ws) -> bool:

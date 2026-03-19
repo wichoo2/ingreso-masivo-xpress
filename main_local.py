@@ -3,6 +3,8 @@ import sys
 import time
 import glob
 import copy
+import traceback
+from collections import defaultdict
 from openpyxl import load_workbook
 
 import logica_local as logica
@@ -14,108 +16,170 @@ from config_local import (
     COL_TIPOSERV, COL_MUNICIPIO, COL_COMENTARIO
 )
 
-SEP = "=" * 60
-MAX_LIBROS = 25   # Aumentado de 10 → menos pausas de guardado en lote
+SEP            = "=" * 60
+MAX_LIBROS     = 25
+MAX_REINTENTOS = 5
+ESPERA_REINT   = 3
 
 import zipfile as _zipfile_main
 
+# =============================================================================
+# LOG PERSISTENTE
+# =============================================================================
+_LOG_PATH = None
+
+def _init_log():
+    global _LOG_PATH
+    try:
+        base = os.path.dirname(os.path.abspath(__file__))
+        _LOG_PATH = os.path.join(base, "ultimo_proceso.log")
+        with open(_LOG_PATH, "w", encoding="utf-8") as f:
+            f.write("=== INGRESO MASIVO - LOG {} ===\n".format(
+                time.strftime("%d/%m/%Y %H:%M:%S")))
+    except Exception:
+        _LOG_PATH = None
+
+def _log(msg):
+    print(msg)
+    if _LOG_PATH:
+        try:
+            with open(_LOG_PATH, "a", encoding="utf-8") as f:
+                f.write(msg + "\n")
+        except Exception:
+            pass
+
+# =============================================================================
+# ONEDRIVE SYNC
+# =============================================================================
+def _forzar_sync_onedrive(ruta):
+    try:
+        _now = time.time()
+        os.utime(ruta, (_now, _now))
+    except Exception:
+        pass
+    try:
+        with open(ruta, "ab") as f:
+            pass
+    except Exception:
+        pass
+
+# =============================================================================
+# DETECTAR ARCHIVOS BLOQUEADOS
+# =============================================================================
+def _archivo_bloqueado(ruta):
+    directorio = os.path.dirname(ruta)
+    nombre     = os.path.basename(ruta)
+    lock       = os.path.join(directorio, "~$" + nombre)
+    return os.path.isfile(lock)
+
+def _verificar_bloqueados(indice):
+    return [os.path.basename(ruta)
+            for ruta in indice.values()
+            if _archivo_bloqueado(ruta)]
+
+# =============================================================================
+# PRESERVAR ZIP (solo tema)
+# =============================================================================
 def _preservar_partes_zip(ruta_orig, ruta_nuevo):
-    """
-    Preserva solo xl/theme/theme1.xml del original en el nuevo.
-    Version rapida: solo lee el tema (pequeno) y lo inyecta.
-    Si el tema no cambio o falla, no hace nada.
-    """
     TEMA = "xl/theme/theme1.xml"
     try:
         if not os.path.isfile(ruta_orig) or not os.path.isfile(ruta_nuevo):
             return
-
-        # Leer solo el tema del original
         with _zipfile_main.ZipFile(ruta_orig, 'r') as z:
             if TEMA not in z.namelist():
                 return
             tema_orig = z.read(TEMA)
-
-        # Verificar si el tema cambio en el nuevo
         with _zipfile_main.ZipFile(ruta_nuevo, 'r') as z:
             if TEMA not in z.namelist():
                 return
-            tema_nuevo = z.read(TEMA)
-
-        # Si son identicos no hace falta nada
-        if tema_orig == tema_nuevo:
-            return
-
-        # Solo si cambio: reemplazar el tema
+            if z.read(TEMA) == tema_orig:
+                return  # identicos — nada que hacer
         ruta_patch = ruta_nuevo + ".patch"
         with _zipfile_main.ZipFile(ruta_nuevo, 'r') as z_in:
             with _zipfile_main.ZipFile(ruta_patch, 'w',
                                         compression=_zipfile_main.ZIP_DEFLATED) as z_out:
                 for item in z_in.infolist():
-                    if item.filename == TEMA:
-                        z_out.writestr(item, tema_orig)
-                    else:
-                        z_out.writestr(item, z_in.read(item.filename))
-
+                    data = tema_orig if item.filename == TEMA else z_in.read(item.filename)
+                    z_out.writestr(item, data)
         if os.path.isfile(ruta_patch) and os.path.getsize(ruta_patch) > 0:
             os.remove(ruta_nuevo)
             os.rename(ruta_patch, ruta_nuevo)
     except Exception:
         try:
-            if os.path.isfile(ruta_nuevo + ".patch"):
-                os.remove(ruta_nuevo + ".patch")
+            p = ruta_nuevo + ".patch"
+            if os.path.isfile(p):
+                os.remove(p)
         except Exception:
             pass
-
-
 
 # =============================================================================
 # CACHE DE LIBROS
 # =============================================================================
 class CacheLibros:
     def __init__(self):
-        self._libros = {}
-        self._orden  = []
+        self._libros  = {}
+        self._orden   = []
+        self._resumen = {}
 
-    def tiene(self, clave):
-        return clave in self._libros
-
-    def obtener(self, clave):
-        return self._libros.get(clave, {})
+    def tiene(self, clave):      return clave in self._libros
+    def obtener(self, clave):    return self._libros.get(clave, {})
+    def count(self):             return len(self._libros)
+    def get_resumen(self):       return self._resumen
 
     def agregar(self, clave, datos):
         self._libros[clave] = datos
         self._orden.append(clave)
+        if clave not in self._resumen:
+            self._resumen[clave] = {
+                "nombre": os.path.basename(datos["path"]),
+                "listo": 0, "dup": 0}
 
-    def count(self):
-        return len(self._libros)
+    def sumar(self, clave, tipo):
+        if clave in self._resumen:
+            self._resumen[clave][tipo] = self._resumen[clave].get(tipo, 0) + 1
 
     def cerrar_todos(self):
         for clave, datos in list(self._libros.items()):
             nombre    = os.path.basename(datos["path"])
             ruta_orig = datos["path"]
             ruta_tmp  = ruta_orig + ".tmp"
-            try:
-                print("  Guardando {}...".format(nombre))
-                datos["wb"].save(ruta_tmp)
-                datos["wb"].close()
-                if os.path.isfile(ruta_tmp) and os.path.getsize(ruta_tmp) > 0:
-                    # Preservar partes del ZIP original que openpyxl no maneja:
-                    # tema de colores, colores recientes, metadatos
-                    _preservar_partes_zip(ruta_orig, ruta_tmp)
-                    if os.path.isfile(ruta_orig):
-                        os.remove(ruta_orig)
-                    os.rename(ruta_tmp, ruta_orig)
-                    print("[OK] Guardado: {}".format(nombre))
-                else:
-                    print("[ERROR] Temporal vacio: {}".format(nombre))
+
+            guardado = False
+            for intento in range(1, MAX_REINTENTOS + 1):
+                try:
+                    datos["wb"].save(ruta_tmp)
+                    datos["wb"].close()
+                    if os.path.isfile(ruta_tmp) and os.path.getsize(ruta_tmp) > 0:
+                        _preservar_partes_zip(ruta_orig, ruta_tmp)
+                        if os.path.isfile(ruta_orig):
+                            os.remove(ruta_orig)
+                        os.rename(ruta_tmp, ruta_orig)
+                        _forzar_sync_onedrive(ruta_orig)
+                        _log("[OK] Guardado: {}".format(nombre))
+                        guardado = True
+                    else:
+                        _log("[ERROR] Temporal vacio: {}".format(nombre))
+                        if os.path.isfile(ruta_tmp):
+                            os.remove(ruta_tmp)
+                    break
+                except PermissionError:
+                    if intento < MAX_REINTENTOS:
+                        _log("  [Reintento {}/{}] '{}' bloqueado, esperando {}s...".format(
+                            intento, MAX_REINTENTOS, nombre, ESPERA_REINT))
+                        time.sleep(ESPERA_REINT)
+                    else:
+                        _log("[ERROR] No se pudo guardar '{}' despues de {} intentos".format(
+                            nombre, MAX_REINTENTOS))
+                except Exception as e:
+                    _log("[ERROR] Al guardar {}: {}".format(nombre, e))
                     if os.path.isfile(ruta_tmp):
-                        os.remove(ruta_tmp)
-            except Exception as e:
-                print("[ERROR] Al guardar {}: {}".format(nombre, e))
-                if os.path.isfile(ruta_tmp):
-                    try: os.remove(ruta_tmp)
-                    except: pass
+                        try: os.remove(ruta_tmp)
+                        except: pass
+                    break
+
+            if not guardado:
+                _log("[ERROR CRITICO] '{}' NO fue guardado.".format(nombre))
+
         self._libros.clear()
         self._orden.clear()
 
@@ -142,22 +206,19 @@ def cargar_libro(ruta, clave):
     try:
         wb = load_workbook(ruta, keep_vba=False, data_only=False)
     except Exception as e:
-        print("[ERROR] No se pudo abrir {}: {}".format(os.path.basename(ruta), e))
+        _log("[ERROR] No se pudo abrir {}: {}".format(os.path.basename(ruta), e))
         return None
 
     ws_valida = None
     for nombre_hoja in wb.sheetnames:
         ws = wb[nombre_hoja]
-        # Saltar hojas ocultas
         if ws.sheet_state != "visible":
             continue
-        # Saltar hojas bloqueadas (con o sin contrasena)
         try:
             if ws.protection.sheet:
                 continue
         except Exception:
             pass
-        # Usar la primera hoja visible, sin bloqueo y con encabezados correctos
         if logica.hoja_valida(ws):
             ws_valida = ws
             break
@@ -166,10 +227,8 @@ def cargar_libro(ruta, clave):
         wb.close()
         return None
 
-    cols_esp = logica.detectar_cols_especiales(ws_valida)
-    ids      = logica.cargar_ids_destino(ws_valida)
-
-    # Fila de encabezado dinamica — puede ser 5 o 6 segun el libro
+    cols_esp       = logica.detectar_cols_especiales(ws_valida)
+    ids            = logica.cargar_ids_destino(ws_valida)
     fila_enc_real  = logica.get_fila_encabezado(ws_valida)
     fila_datos_ini = fila_enc_real + 1
 
@@ -186,7 +245,6 @@ def cargar_libro(ruta, clave):
         if n and len(n) >= 3 and not n.isdigit():
             nombres_cole.add(n)
 
-    # Pre-calcular ultima fila UNA sola vez al abrir
     ult_datos  = logica.ultima_fila_con_datos(ws_valida)
     fila_libre = logica.primera_fila_libre(ws_valida, ult_datos + 1)
 
@@ -201,106 +259,41 @@ def cargar_libro(ruta, clave):
         "ids":          ids,
         "nombres_cole": nombres_cole,
         "clave":        clave,
-        "fila_libre":   fila_libre,  # puntero incremental en cache
+        "fila_libre":   fila_libre,
+        "fila_enc":     fila_enc_real,
     }
 
 # =============================================================================
-# MAIN
+# PRE-CLASIFICAR FILAS POR TIENDA (evita busquedas repetidas)
 # =============================================================================
-def main():
-    t_inicio = time.time()
+def _clasificar_filas(filas_data, indice, mapa_tiendas, indice_cole,
+                      ws_origen, ultima_fila):
+    """
+    Paso 1: clasifica todas las filas en memoria agrupandolas por tienda.
+    Evita llamar normalizar() + busqueda de indice N veces para la misma tienda.
+    Retorna: dict clave_archivo -> [lista de (fila_real, fila_vals)]
+             lista de filas_falta
+    """
+    # Cache local de normalizacion — cada nombre de tienda se normaliza UNA sola vez
+    _norm_cache = {}
 
-    print("\n" + SEP)
-    print("  MOVER PAQUETES - MODO LOCAL")
-    print(SEP + "\n")
-
-    if not os.path.isfile(ARCHIVO_INGRESO):
-        print("[ERROR] No se encontro INGRESO_MASIVO:\n  {}".format(ARCHIVO_INGRESO))
-        return
-    if not os.path.isdir(CARPETA_TIENDAS):
-        print("[ERROR] No se encontro carpeta tiendas:\n  {}".format(CARPETA_TIENDAS))
-        return
-
-    print("Cargando INGRESO_MASIVO...")
-    try:
-        wb_origen = load_workbook(ARCHIVO_INGRESO, data_only=False)
-    except Exception as e:
-        print("[ERROR] {}".format(e))
-        return
-
-    if HOJA_ORIGEN not in wb_origen.sheetnames:
-        print("[ERROR] No se encontro hoja '{}'".format(HOJA_ORIGEN))
-        return
-
-    ws_origen = wb_origen[HOJA_ORIGEN]
-
-    mapa_tiendas = {}
-    if HOJA_TIENDAS in wb_origen.sheetnames:
-        mapa_tiendas = logica.cargar_mapa_tiendas(
-            wb_origen[HOJA_TIENDAS], FILA_TIENDAS_INI)
-        print("[OK] Hoja TIENDAS: {} variantes".format(len(mapa_tiendas)))
-    else:
-        print("[AVISO] Sin hoja TIENDAS")
-
-    print("\nIndexando carpeta de tiendas...")
-    indice = indexar_carpeta(CARPETA_TIENDAS)
-    print("[OK] {} archivos encontrados".format(len(indice)))
-
-    # Cargar cache de col E
-    import indexar as _idx
-    indice_cole = _idx.cargar_cache()
-    if indice_cole:
-        print("[OK] Cache col E: {} nombres".format(len(indice_cole)))
-    else:
-        print("[AVISO] Sin cache col E. Usa 'Indexar tiendas' para generarlo.")
-    print()
-
-    cache       = CacheLibros()
-    c_listo = c_falta = c_dup = 0
-    ultima_fila = ws_origen.max_row
-    filas_falta = []
-
-    tiendas_unicas = len(set(
-        logica.normalizar(row[0] or "")
-        for row in ws_origen.iter_rows(min_row=FILA_INICIO, max_row=ultima_fila,
-                                        min_col=COL_TIENDA, max_col=COL_TIENDA,
-                                        values_only=True)
-        if row[0]
-    ))
-    print("Procesando filas {} a {} ({} tiendas unicas)...\n".format(
-        FILA_INICIO, ultima_fila, tiendas_unicas))
-    # Linea especial para que la UI pueda parsear el total exacto
-    print("TOTAL_FILAS:{}".format(ultima_fila - FILA_INICIO + 1), flush=True)
-
-    # Pre-leer todas las filas del origen EN MEMORIA de una sola pasada
-    # Esto evita cientos de llamadas ws.cell() dentro del loop — mucho mas rapido
-    COL_MAX_LEER = max(COL_COMENTARIO, COL_DATOS_INI + 6) + 1
-    filas_data = {}
-    for row in ws_origen.iter_rows(min_row=FILA_INICIO, max_row=ultima_fila,
-                                    min_col=1, max_col=COL_MAX_LEER,
-                                    values_only=True):
-        fila_num = FILA_INICIO + len(filas_data)
-        filas_data[fila_num] = row
+    grupos  = defaultdict(list)   # clave_archivo -> [(fila_real, fila_vals)]
+    faltas  = []                  # [(fila_real, fila_vals, motivo)]
 
     for fila_real in range(FILA_INICIO, ultima_fila + 1):
-
         fila_vals = filas_data.get(fila_real, ())
 
-        def get(col):
+        # Leer valores directo del tuple — sin funcion get() redefinida en loop
+        def _v(col):
             idx = col - 1
-            v   = fila_vals[idx] if idx < len(fila_vals) else None
+            v = fila_vals[idx] if idx < len(fila_vals) else None
             return str(v).strip() if v is not None else ""
 
-        ws_origen.cell(row=fila_real, column=COL_RESULTADO).value = ""
-
-        nombre_tienda = get(COL_TIENDA)
-        id_nuevo      = get(COL_ID)
-        valor_k       = get(COL_TIPOSERV)
-        valor_m       = get(COL_MUNICIPIO)
-        valor_n       = get(COL_COMENTARIO)
-
-        arr_datos = [fila_vals[COL_DATOS_INI - 1 + j] if (COL_DATOS_INI - 1 + j) < len(fila_vals) else None
-                     for j in range(7)]
+        nombre_tienda = _v(COL_TIENDA)
+        id_nuevo      = _v(COL_ID)
+        arr_datos     = [fila_vals[COL_DATOS_INI - 1 + j]
+                         if (COL_DATOS_INI - 1 + j) < len(fila_vals) else None
+                         for j in range(7)]
 
         # Fila completamente vacia
         if (not nombre_tienda and not id_nuevo and
@@ -310,63 +303,87 @@ def main():
         # Sin tienda
         if not nombre_tienda:
             ws_origen.cell(row=fila_real, column=COL_RESULTADO).value = "FALTA"
-            filas_falta.append(list(fila_vals[:14]) + [None] * max(0, 14 - len(fila_vals)))
-            c_falta += 1
+            faltas.append((fila_real, list(fila_vals), "sin_tienda"))
             continue
 
-        norm_tienda   = logica.normalizar(nombre_tienda)
-        clave_archivo = None
+        # Normalizar con cache — evita regex por cada fila repetida
+        if nombre_tienda not in _norm_cache:
+            _norm_cache[nombre_tienda] = logica.normalizar(nombre_tienda)
+        norm_tienda = _norm_cache[nombre_tienda]
 
-        # [1] Exacto
+        # Buscar archivo
+        clave_archivo = None
         if norm_tienda in indice:
             clave_archivo = norm_tienda
-        # [2] Hoja TIENDAS
         elif norm_tienda in mapa_tiendas:
             nd = mapa_tiendas[norm_tienda]
             if nd in indice:
                 clave_archivo = nd
-        # [3] Cache col E
         elif norm_tienda in indice_cole:
             clave_archivo = indice_cole[norm_tienda]
 
         if not clave_archivo:
             ws_origen.cell(row=fila_real, column=COL_RESULTADO).value = "FALTA"
-            filas_falta.append([ws_origen.cell(row=fila_real, column=c).value
-                                 for c in range(1, 15)])
-            c_falta += 1
-            print("  FALTA  fila {}: '{}'".format(fila_real, nombre_tienda))
+            faltas.append((fila_real, list(fila_vals), nombre_tienda))
             continue
 
-        # Limite cache
-        if cache.count() >= MAX_LIBROS and not cache.tiene(clave_archivo):
-            print("\n  [LOTE] Guardando {} libros...".format(MAX_LIBROS))
-            cache.cerrar_todos()
+        grupos[clave_archivo].append((fila_real, fila_vals))
 
-        # Abrir libro
-        if not cache.tiene(clave_archivo):
-            ruta  = indice[clave_archivo]
-            nombre_arch = os.path.basename(ruta)
-            print("  Abriendo {}...".format(nombre_arch))
-            datos = cargar_libro(ruta, clave_archivo)
-            if datos is None:
+    return grupos, faltas
+
+# =============================================================================
+# PROCESAR UN GRUPO DE FILAS PARA UNA TIENDA
+# =============================================================================
+def _procesar_grupo(clave_archivo, filas_grupo, cache, indice,
+                    indice_cole, ws_origen):
+    """
+    Procesa todas las filas de UNA tienda de una sola vez.
+    El libro se abre una sola vez y se insertan todos sus paquetes juntos.
+    """
+    c_listo = c_dup = 0
+
+    # Abrir libro si no esta en cache
+    if not cache.tiene(clave_archivo):
+        ruta        = indice[clave_archivo]
+        nombre_arch = os.path.basename(ruta)
+        _log("  Abriendo {}...".format(nombre_arch))
+        datos = cargar_libro(ruta, clave_archivo)
+        if datos is None:
+            # Marcar todas las filas del grupo como FALTA
+            for fila_real, fila_vals in filas_grupo:
                 ws_origen.cell(row=fila_real, column=COL_RESULTADO).value = "FALTA"
-                filas_falta.append(list(fila_vals[:14]) + [None] * max(0, 14 - len(fila_vals)))
-                c_falta += 1
-                print("  FALTA  fila {}: hoja invalida en '{}'".format(
-                    fila_real, nombre_tienda))
-                continue
-            cache.agregar(clave_archivo, datos)
-            for ne in datos["nombres_cole"]:
-                if ne not in indice_cole:
-                    indice_cole[ne] = clave_archivo
+            _log("  FALTA  hoja invalida: '{}'".format(nombre_arch))
+            return 0, len(filas_grupo), [(fr, list(fv), nombre_arch)
+                                          for fr, fv in filas_grupo]
+        cache.agregar(clave_archivo, datos)
+        for ne in datos["nombres_cole"]:
+            if ne not in indice_cole:
+                indice_cole[ne] = clave_archivo
 
-        datos_lib = cache.obtener(clave_archivo)
-        ws_dest   = datos_lib["ws"]
-        tipo_q    = datos_lib["tipo_q"]
-        col_q     = datos_lib["col_q"]
-        col_paq   = datos_lib["col_paq"]
-        col_oid   = datos_lib["col_oid"]
-        ids_dest  = datos_lib["ids"]
+    datos_lib = cache.obtener(clave_archivo)
+    ws_dest   = datos_lib["ws"]
+    tipo_q    = datos_lib["tipo_q"]
+    col_q     = datos_lib["col_q"]
+    col_paq   = datos_lib["col_paq"]
+    col_oid   = datos_lib["col_oid"]
+    ids_dest  = datos_lib["ids"]
+    fila_libre = datos_lib["fila_libre"]
+
+    filas_falta_grupo = []
+
+    for fila_real, fila_vals in filas_grupo:
+        def _v(col):
+            idx = col - 1
+            v = fila_vals[idx] if idx < len(fila_vals) else None
+            return str(v).strip() if v is not None else ""
+
+        id_nuevo = _v(COL_ID)
+        valor_k  = _v(COL_TIPOSERV)
+        valor_m  = _v(COL_MUNICIPIO)
+        valor_n  = _v(COL_COMENTARIO)
+        arr_datos = [fila_vals[COL_DATOS_INI - 1 + j]
+                     if (COL_DATOS_INI - 1 + j) < len(fila_vals) else None
+                     for j in range(7)]
 
         num_paquetes = max(logica.extraer_num_paquetes(valor_n), 1)
         estado, a_insertar = logica.evaluar_duplicado(
@@ -374,15 +391,12 @@ def main():
 
         if estado == "DUP":
             ws_origen.cell(row=fila_real, column=COL_RESULTADO).value = "DUP"
+            cache.sumar(clave_archivo, "dup")
             c_dup += 1
-            print("  DUP    fila {}: '{}' ID {}".format(
-                fila_real, nombre_tienda, id_nuevo))
+            _log("  DUP    fila {}: ID {}".format(fila_real, id_nuevo))
             continue
 
         ya_existentes = ids_dest.get(id_nuevo, 0)
-
-        # Usar fila_libre del cache — ya calculada al abrir, solo avanza
-        fila_libre = datos_lib["fila_libre"]
 
         for k in range(a_insertar):
             logica.insertar_paquete(
@@ -393,26 +407,157 @@ def main():
                 tipo_q=tipo_q, col_q=col_q,
                 col_paq=col_paq, col_oid=col_oid)
             fila_libre += 1
-            # Version rapida: solo busca en 20 filas desde el punto actual
             fila_libre = logica.primera_fila_libre_rapida(ws_dest, fila_libre)
-
-        # Guardar puntero actualizado en cache
-        datos_lib["fila_libre"] = fila_libre
 
         if id_nuevo:
             ids_dest[id_nuevo] = ya_existentes + a_insertar
 
         ws_origen.cell(row=fila_real, column=COL_RESULTADO).value = "LISTO"
+        cache.sumar(clave_archivo, "listo")
         c_listo += 1
-        print("  LISTO  fila {}: {}".format(fila_real, nombre_tienda))
+        _log("  LISTO  fila {}".format(fila_real))
 
-    # Guardar tiendas
-    print("\nGuardando archivos de tiendas...")
+    # Actualizar puntero fila libre en cache
+    datos_lib["fila_libre"] = fila_libre
+
+    return c_listo, c_dup, filas_falta_grupo
+
+# =============================================================================
+# MAIN
+# =============================================================================
+def main():
+    _init_log()
+    t_inicio = time.time()
+
+    _log("\n" + SEP)
+    _log("  MOVER PAQUETES - MODO LOCAL")
+    _log(SEP + "\n")
+
+    if not os.path.isfile(ARCHIVO_INGRESO):
+        _log("[ERROR] No se encontro INGRESO_MASIVO:\n  {}".format(ARCHIVO_INGRESO))
+        return
+    if not os.path.isdir(CARPETA_TIENDAS):
+        _log("[ERROR] No se encontro carpeta tiendas:\n  {}".format(CARPETA_TIENDAS))
+        return
+
+    _log("Cargando INGRESO_MASIVO...")
+    try:
+        wb_origen = load_workbook(ARCHIVO_INGRESO, data_only=False)
+    except Exception as e:
+        _log("[ERROR] {}".format(e))
+        return
+
+    if HOJA_ORIGEN not in wb_origen.sheetnames:
+        _log("[ERROR] No se encontro hoja '{}'".format(HOJA_ORIGEN))
+        return
+
+    ws_origen = wb_origen[HOJA_ORIGEN]
+
+    mapa_tiendas = {}
+    if HOJA_TIENDAS in wb_origen.sheetnames:
+        mapa_tiendas = logica.cargar_mapa_tiendas(
+            wb_origen[HOJA_TIENDAS], FILA_TIENDAS_INI)
+        _log("[OK] Hoja TIENDAS: {} variantes".format(len(mapa_tiendas)))
+    else:
+        _log("[AVISO] Sin hoja TIENDAS")
+
+    _log("\nIndexando carpeta de tiendas...")
+    indice = indexar_carpeta(CARPETA_TIENDAS)
+    _log("[OK] {} archivos encontrados".format(len(indice)))
+
+    # Advertir bloqueados
+    bloqueados = _verificar_bloqueados(indice)
+    if bloqueados:
+        _log("\n[AVISO] Archivos abiertos en Excel (pueden fallar al guardar):")
+        for b in bloqueados:
+            _log("  - {}".format(b))
+        _log("")
+
+    import indexar as _idx
+    indice_cole = _idx.cargar_cache()
+    if indice_cole:
+        _log("[OK] Cache col E: {} nombres".format(len(indice_cole)))
+    else:
+        _log("[AVISO] Sin cache col E.")
+    _log("")
+
+    ultima_fila = ws_origen.max_row
+
+    # Emitir total para la UI
+    print("TOTAL_FILAS:{}".format(ultima_fila - FILA_INICIO + 1), flush=True)
+
+    # ------------------------------------------------------------------
+    # PASO 1: Pre-leer TODAS las filas en memoria (una sola pasada)
+    # ------------------------------------------------------------------
+    t0 = time.time()
+    COL_MAX_LEER = max(COL_COMENTARIO, COL_DATOS_INI + 6) + 1
+    filas_data = {}
+    for row in ws_origen.iter_rows(min_row=FILA_INICIO, max_row=ultima_fila,
+                                    min_col=1, max_col=COL_MAX_LEER,
+                                    values_only=True):
+        fila_num = FILA_INICIO + len(filas_data)
+        filas_data[fila_num] = row
+    _log("Leidas {} filas en {:.2f}s".format(len(filas_data), time.time() - t0))
+
+    # ------------------------------------------------------------------
+    # PASO 2: Clasificar filas por tienda en memoria (sin abrir libros)
+    # ------------------------------------------------------------------
+    t0 = time.time()
+    grupos, faltas_clasificacion = _clasificar_filas(
+        filas_data, indice, mapa_tiendas, indice_cole, ws_origen, ultima_fila)
+
+    n_tiendas = len(grupos)
+    n_filas   = sum(len(v) for v in grupos.values())
+    _log("Clasificadas: {} tiendas, {} filas validas, {} faltas en {:.2f}s".format(
+        n_tiendas, n_filas, len(faltas_clasificacion), time.time() - t0))
+    _log("")
+
+    # ------------------------------------------------------------------
+    # PASO 3: Procesar tienda por tienda (ya agrupadas)
+    # ------------------------------------------------------------------
+    cache   = CacheLibros()
+    c_listo = c_dup = 0
+    filas_falta = [(fr, fv) for fr, fv, _ in faltas_clasificacion]
+
+    # Logging de faltas de clasificacion
+    for fila_real, fila_vals, motivo in faltas_clasificacion:
+        if motivo != "sin_tienda":
+            _log("  FALTA  fila {}: '{}'".format(fila_real, motivo))
+
+    tiendas_procesadas = 0
+    for clave_archivo, filas_grupo in grupos.items():
+
+        # Control de cache — guardar lote si se llena
+        if cache.count() >= MAX_LIBROS and not cache.tiene(clave_archivo):
+            _log("\n  [LOTE] Guardando {} libros...".format(MAX_LIBROS))
+            cache.cerrar_todos()
+
+        listo, dup, faltas_grupo = _procesar_grupo(
+            clave_archivo, filas_grupo, cache, indice, indice_cole, ws_origen)
+
+        c_listo += listo
+        c_dup   += dup
+        filas_falta.extend([(fr, fv) for fr, fv, _ in faltas_grupo])
+        tiendas_procesadas += 1
+
+        if tiendas_procesadas % 10 == 0:
+            _log("  [{}/{}] tiendas procesadas...".format(
+                tiendas_procesadas, n_tiendas))
+
+    # ------------------------------------------------------------------
+    # PASO 4: Guardar todos los libros
+    # ------------------------------------------------------------------
+    _log("\nGuardando archivos de tiendas...")
+    resumen_tiendas = cache.get_resumen()
     cache.cerrar_todos()
 
-    # Hoja FALTA
+    c_falta = len(filas_falta)
+
+    # ------------------------------------------------------------------
+    # PASO 5: Actualizar hoja FALTA
+    # ------------------------------------------------------------------
     if filas_falta:
-        print("\nActualizando hoja FALTA...")
+        _log("\nActualizando hoja FALTA...")
         HOJA_FALTA = "FALTA"
         if HOJA_FALTA in wb_origen.sheetnames:
             ws_falta = wb_origen[HOJA_FALTA]
@@ -422,7 +567,7 @@ def main():
         else:
             ws_falta = wb_origen.create_sheet(HOJA_FALTA)
 
-        # Construir indice id→fila UNA sola vez (evita O(n²) anterior)
+        # Indice id→fila para copiar estilos
         indice_id_fila = {}
         for fr in range(FILA_INICIO, ws_origen.max_row + 1):
             id_val = ws_origen.cell(row=fr, column=6).value
@@ -433,11 +578,10 @@ def main():
                     indice_id_fila[clave_id] = fr
 
         ri = 4
-        for fila_datos in filas_falta:
-            id_buscar        = fila_datos[5]
+        for fila_real, fila_vals in filas_falta:
+            id_buscar        = fila_vals[5] if len(fila_vals) > 5 else None
             fila_origen_real = indice_id_fila.get(str(id_buscar)) if id_buscar else None
-
-            for ci, valor in enumerate(fila_datos, start=1):
+            for ci, valor in enumerate(fila_vals, start=1):
                 celda_dest = ws_falta.cell(row=ri, column=ci)
                 celda_dest.value = valor
                 if fila_origen_real:
@@ -452,10 +596,12 @@ def main():
                     except Exception:
                         pass
             ri += 1
-        print("[OK] {} filas en hoja FALTA".format(len(filas_falta)))
+        _log("[OK] {} filas en hoja FALTA".format(len(filas_falta)))
 
-    # Guardar INGRESO_MASIVO
-    print("\nGuardando INGRESO_MASIVO...")
+    # ------------------------------------------------------------------
+    # PASO 6: Guardar INGRESO_MASIVO
+    # ------------------------------------------------------------------
+    _log("\nGuardando INGRESO_MASIVO...")
     ruta_tmp = ARCHIVO_INGRESO + ".tmp"
     try:
         wb_origen.save(ruta_tmp)
@@ -464,24 +610,40 @@ def main():
             if os.path.isfile(ARCHIVO_INGRESO):
                 os.remove(ARCHIVO_INGRESO)
             os.rename(ruta_tmp, ARCHIVO_INGRESO)
-            print("[OK] INGRESO_MASIVO guardado")
+            _forzar_sync_onedrive(ARCHIVO_INGRESO)
+            _log("[OK] INGRESO_MASIVO guardado")
         else:
-            print("[ERROR] No se pudo guardar INGRESO_MASIVO")
+            _log("[ERROR] No se pudo guardar INGRESO_MASIVO")
     except Exception as e:
-        print("[ERROR] {}".format(e))
+        _log("[ERROR] {}".format(e))
         if os.path.isfile(ruta_tmp):
             try: os.remove(ruta_tmp)
             except: pass
 
     t_total = time.time() - t_inicio
-    print("\n" + SEP)
-    print("  PROCESO COMPLETADO")
-    print(SEP)
-    print("  LISTO : {}".format(c_listo))
-    print("  FALTA : {}".format(c_falta))
-    print("  DUP   : {}".format(c_dup))
-    print("  Tiempo: {:.1f}s".format(t_total))
-    print(SEP + "\n")
+
+    # Resumen final
+    _log("\n" + SEP)
+    _log("  PROCESO COMPLETADO")
+    _log(SEP)
+    _log("  LISTO : {}".format(c_listo))
+    _log("  FALTA : {}".format(c_falta))
+    _log("  DUP   : {}".format(c_dup))
+    _log("  Tiempo: {:.1f}s".format(t_total))
+
+    if resumen_tiendas:
+        _log("\n  RESUMEN POR TIENDA:")
+        _log("  {:<40} {:>6} {:>5}".format("TIENDA", "LISTO", "DUP"))
+        _log("  " + "-" * 54)
+        for clave, dat in sorted(resumen_tiendas.items(),
+                                  key=lambda x: x[1].get("listo", 0), reverse=True):
+            if dat.get("listo", 0) > 0 or dat.get("dup", 0) > 0:
+                _log("  {:<40} {:>6} {:>5}".format(
+                    dat["nombre"][:40], dat.get("listo", 0), dat.get("dup", 0)))
+
+    _log(SEP + "\n")
+    if _LOG_PATH:
+        _log("Log guardado en: {}".format(_LOG_PATH))
 
 
 if __name__ == "__main__":
