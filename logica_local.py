@@ -373,9 +373,12 @@ def _convertir_valor(valor, es_fecha=False):
                         break
                     except ValueError:
                         continue
-            meses = {1:"ene",2:"feb",3:"mar",4:"abr",5:"may",6:"jun",
-                     7:"jul",8:"ago",9:"sep",10:"oct",11:"nov",12:"dic"}
-            return "{}-{}".format(valor.day, meses[valor.month])
+
+            # CAMBIO CLAVE: devolver datetime real, no string
+            if isinstance(valor, (datetime, date)):
+                return valor
+
+            return str(valor)
         except Exception:
             return str(valor)
 
@@ -391,7 +394,6 @@ def _convertir_valor(valor, es_fecha=False):
         return int(s_limpio) if "." not in s_limpio else float(s_limpio)
     except ValueError:
         return s
-
 # =============================================================================
 # INSERTAR PAQUETE
 # Solo toca: D:J, col tipo_q/municipio, col paquetes, col orden_id, comentario R
@@ -421,6 +423,8 @@ def insertar_paquete(ws, fila_dest, arr_datos, precio_cero,
 
         es_fecha = (col == COL_DATOS_INI)
         celda.value = _convertir_valor(valor, es_fecha=es_fecha)
+        if es_fecha and isinstance(celda.value, (datetime, date)):
+            celda.number_format = "D-MMM"
 
     # Tipo servicio / municipio
     # PROTECCION: col_q debe estar fuera del rango D:J (cols 4-10)
