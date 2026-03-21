@@ -2,10 +2,18 @@ import os
 import sys
 import time
 import glob
+import json
 import copy
 import traceback
 from collections import defaultdict
 from openpyxl import load_workbook
+
+# Forzar stdout en UTF-8 para evitar UnicodeEncodeError en Windows
+if hasattr(sys.stdout, 'reconfigure'):
+    try:
+        sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+    except Exception:
+        pass
 
 import logica_local as logica
 from config_local import (
@@ -24,6 +32,42 @@ ESPERA_REINT   = 3
 import zipfile as _zipfile_main
 
 # =============================================================================
+# LISTA DE OMISIONES
+# Mapeo manual: nombre_col_e (normalizado) -> clave_archivo (normalizado)
+# Bypasea toda la logica de busqueda — ingresa directo sin validar
+# =============================================================================
+_OMISIONES_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                "omisiones.json")
+
+def cargar_omisiones():
+    """
+    Carga el archivo omisiones.json.
+    Retorna dict: {nombre_normalizado_col_e: clave_archivo_normalizada}
+    """
+    try:
+        with open(_OMISIONES_FILE, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        import logica_local as _l
+        return {
+            _l.normalizar(k): _l.normalizar(v)
+            for k, v in data.items()
+            if k.strip() and v.strip()
+        }
+    except Exception:
+        return {}
+
+def guardar_omisiones(omisiones_raw):
+    """
+    Guarda el dict crudo {nombre_col_e: nombre_archivo} en omisiones.json.
+    """
+    try:
+        with open(_OMISIONES_FILE, "w", encoding="utf-8") as f:
+            json.dump(omisiones_raw, f, ensure_ascii=False, indent=2)
+        return True
+    except Exception:
+        return False
+
+# =============================================================================
 # LOG PERSISTENTE
 # =============================================================================
 _LOG_PATH = None
@@ -40,7 +84,11 @@ def _init_log():
         _LOG_PATH = None
 
 def _log(msg):
-    print(msg)
+    try:
+        print(msg)
+    except UnicodeEncodeError:
+        # Windows cp1252 no soporta algunos caracteres unicode — imprimir seguro
+        print(msg.encode('ascii', errors='replace').decode('ascii'))
     if _LOG_PATH:
         try:
             with open(_LOG_PATH, "a", encoding="utf-8") as f:
@@ -289,20 +337,20 @@ def _clasificar_filas(filas_data, indice, mapa_tiendas, indice_cole,
                       ws_origen, ultima_fila):
     """
     Paso 1: clasifica todas las filas en memoria agrupandolas por tienda.
-    Evita llamar normalizar() + busqueda de indice N veces para la misma tienda.
-    Retorna: dict clave_archivo -> [lista de (fila_real, fila_vals)]
-             lista de filas_falta
+    Nivel 0 (NUEVO): Lista de omisiones — bypass directo sin validacion.
+    Nivel 1: Exacto por nombre de archivo.
+    Nivel 2: Hoja TIENDAS.
+    Nivel 3: Cache columna E.
     """
-    # Cache local de normalizacion — cada nombre de tienda se normaliza UNA sola vez
     _norm_cache = {}
+    omisiones   = cargar_omisiones()  # {norm_nombre_e: norm_clave_archivo}
 
-    grupos  = defaultdict(list)   # clave_archivo -> [(fila_real, fila_vals)]
-    faltas  = []                  # [(fila_real, fila_vals, motivo)]
+    grupos = defaultdict(list)
+    faltas = []
 
     for fila_real in range(FILA_INICIO, ultima_fila + 1):
         fila_vals = filas_data.get(fila_real, ())
 
-        # Leer valores directo del tuple — sin funcion get() redefinida en loop
         def _v(col):
             idx = col - 1
             v = fila_vals[idx] if idx < len(fila_vals) else None
@@ -325,20 +373,33 @@ def _clasificar_filas(filas_data, indice, mapa_tiendas, indice_cole,
             faltas.append((fila_real, list(fila_vals), "sin_tienda"))
             continue
 
-        # Normalizar con cache — evita regex por cada fila repetida
+        # Normalizar con cache
         if nombre_tienda not in _norm_cache:
             _norm_cache[nombre_tienda] = logica.normalizar(nombre_tienda)
         norm_tienda = _norm_cache[nombre_tienda]
 
-        # Buscar archivo
         clave_archivo = None
-        if norm_tienda in indice:
+
+        # [0] Lista de omisiones — bypass directo (maxima prioridad)
+        if norm_tienda in omisiones:
+            clave_omision = omisiones[norm_tienda]
+            if clave_omision in indice:
+                clave_archivo = clave_omision
+                _log("  [OMISION] fila {}: '{}' -> '{}'".format(
+                    fila_real, nombre_tienda, clave_omision))
+
+        # [1] Exacto por nombre archivo
+        if not clave_archivo and norm_tienda in indice:
             clave_archivo = norm_tienda
-        elif norm_tienda in mapa_tiendas:
+
+        # [2] Hoja TIENDAS
+        if not clave_archivo and norm_tienda in mapa_tiendas:
             nd = mapa_tiendas[norm_tienda]
             if nd in indice:
                 clave_archivo = nd
-        elif norm_tienda in indice_cole:
+
+        # [3] Cache col E
+        if not clave_archivo and norm_tienda in indice_cole:
             clave_archivo = indice_cole[norm_tienda]
 
         if not clave_archivo:
@@ -460,6 +521,11 @@ def main():
         return
 
     _log("Cargando INGRESO_MASIVO...")
+    # Advertir si el INGRESO_MASIVO esta abierto en Excel
+    if _archivo_bloqueado(ARCHIVO_INGRESO):
+        _log("[AVISO] INGRESO_MASIVO esta abierto en Excel.")
+        _log("        Los resultados no podran guardarse al terminar.")
+        _log("        Cierra el archivo antes de ejecutar para evitar errores.")
     try:
         wb_origen = load_workbook(ARCHIVO_INGRESO, data_only=False)
     except Exception as e:
@@ -621,21 +687,44 @@ def main():
     # PASO 6: Guardar INGRESO_MASIVO
     # ------------------------------------------------------------------
     _log("\nGuardando INGRESO_MASIVO...")
-    try:
-        import io as _io
-        buf = _io.BytesIO()
-        wb_origen.save(buf)
-        wb_origen.close()
-        contenido = buf.getvalue()
-        if contenido:
-            with open(ARCHIVO_INGRESO, 'wb') as f:
-                f.write(contenido)
-            _forzar_sync_onedrive(ARCHIVO_INGRESO)
-            _log("[OK] INGRESO_MASIVO guardado")
-        else:
-            _log("[ERROR] No se pudo guardar INGRESO_MASIVO")
-    except Exception as e:
-        _log("[ERROR] {}".format(e))
+
+    # Verificar si el archivo esta bloqueado (abierto en Excel)
+    if _archivo_bloqueado(ARCHIVO_INGRESO):
+        _log("[AVISO] INGRESO_MASIVO esta abierto en Excel.")
+        _log("        Cerralo para que se guarden los resultados.")
+
+    import io as _io
+    buf = _io.BytesIO()
+    wb_origen.save(buf)
+    wb_origen.close()
+    contenido = buf.getvalue()
+
+    guardado_ingreso = False
+    for intento in range(1, MAX_REINTENTOS + 1):
+        try:
+            if contenido:
+                with open(ARCHIVO_INGRESO, 'wb') as f:
+                    f.write(contenido)
+                _forzar_sync_onedrive(ARCHIVO_INGRESO)
+                _log("[OK] INGRESO_MASIVO guardado")
+                guardado_ingreso = True
+            break
+        except PermissionError:
+            if intento < MAX_REINTENTOS:
+                _log("  [Reintento {}/{}] INGRESO_MASIVO bloqueado, esperando {}s..."
+                     "  (cierra el archivo en Excel)".format(
+                         intento, MAX_REINTENTOS, ESPERA_REINT))
+                time.sleep(ESPERA_REINT)
+            else:
+                _log("[ERROR] No se pudo guardar INGRESO_MASIVO despues de {} intentos.".format(
+                    MAX_REINTENTOS))
+                _log("        Los resultados LISTO/FALTA/DUP NO fueron escritos.")
+        except Exception as e:
+            _log("[ERROR] INGRESO_MASIVO: {}".format(e))
+            break
+
+    if not guardado_ingreso:
+        _log("[AVISO] Cierra el INGRESO_MASIVO en Excel y vuelve a ejecutar.")
 
     t_total = time.time() - t_inicio
 

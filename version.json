@@ -1,7 +1,7 @@
 {
-  "version": "3.9.4",
+  "version": "3.9.6",
   "fecha": "20/03/2026",
-  "notas": "- Sistema de actualizaciones automaticas desde GitHub\n- Sincronizacion OneDrive sin crear ni eliminar archivos\n- Version dinamica en sidebar y footer\n- Guardado via BytesIO sin archivos temporales",
+  "notas": "- Panel de progreso por tienda en tiempo real\n- Borde verde/rojo/naranja segun resultado\n- Lista de omisiones para forzar ingreso manual\n- Fix UnicodeEncodeError en Windows\n- Reintento si INGRESO_MASIVO esta bloqueado\n- Sistema de actualizaciones automaticas desde GitHub",
   "archivos": [
     "Ingreso_Masivo_XPES.pyw",
     "main_local.py",

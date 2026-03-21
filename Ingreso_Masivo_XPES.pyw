@@ -335,6 +335,7 @@ class App(tk.Tk):
         self._sbtn(sb, "Ver FALTA",      "Filas sin tienda destino",          YELLOW,  self._ver_falta)
         self._sbtn(sb, "Diagnosticar",   "Por que no se ingresa una tienda",  RED,     self._abrir_diagnostico)
         self._sbtn(sb, "Cambiar rutas",  "Configurar archivos y carpetas",    WHITE4,  self._abrir_config)
+        self._sbtn(sb, "Lista omisiones","Forzar ingreso por nombre manual",  ORANGE3, self._abrir_omisiones)
 
         tk.Frame(sb, bg=BORDER, height=1).pack(fill="x", padx=16, pady=6)
 
@@ -500,9 +501,9 @@ class App(tk.Tk):
             lambda e: self._lcanvas.yview_scroll(
                 int(-1*(e.delta/120)), "units"))
 
-        # Panel derecho: resumen + estado actual
-        right = tk.Frame(paned, bg=BG, width=200)
-        paned.add(right, minsize=180)
+        # Panel derecho: resumen + progreso por tienda
+        right = tk.Frame(paned, bg=BG, width=220)
+        paned.add(right, minsize=200)
 
         tk.Label(right, text="Ultimo proceso", bg=BG,
                  fg=WHITE2, font=UI_B).pack(anchor="w", padx=4, pady=(0,8))
@@ -510,13 +511,43 @@ class App(tk.Tk):
         self._rframe.pack(fill="x", padx=4)
         self._build_resumen()
 
-        # Estado actual del proceso
+        # Panel de progreso por tienda (reemplaza "Estado actual")
         tk.Frame(right, bg=BORDER, height=1).pack(fill="x", padx=4, pady=10)
-        tk.Label(right, text="Estado actual", bg=BG,
-                 fg=WHITE2, font=UI_B).pack(anchor="w", padx=4, pady=(0,6))
-        self._estado_frame = tk.Frame(right, bg=BG)
-        self._estado_frame.pack(fill="x", padx=4)
-        self._build_estado_actual()
+
+        tiendas_hdr = tk.Frame(right, bg=BG)
+        tiendas_hdr.pack(fill="x", padx=4, pady=(0,6))
+        tk.Label(tiendas_hdr, text="Tiendas en proceso", bg=BG,
+                 fg=WHITE2, font=UI_B).pack(side="left")
+        self._lbl_tiendas_cnt = tk.Label(tiendas_hdr, text="",
+                                          bg=BG, fg=WHITE4,
+                                          font=("Segoe UI",7))
+        self._lbl_tiendas_cnt.pack(side="right")
+
+        # Canvas scrollable para las tarjetas de tienda
+        tiendas_outer = tk.Frame(right, bg=BG)
+        tiendas_outer.pack(fill="both", expand=True, padx=4)
+        self._tiendas_canvas = tk.Canvas(tiendas_outer, bg=BG,
+                                          highlightthickness=0)
+        tiendas_vsb = tk.Scrollbar(tiendas_outer, orient="vertical",
+                                    command=self._tiendas_canvas.yview)
+        self._tiendas_canvas.configure(yscrollcommand=tiendas_vsb.set)
+        tiendas_vsb.pack(side="right", fill="y")
+        self._tiendas_canvas.pack(side="left", fill="both", expand=True)
+        self._tiendas_frame = tk.Frame(self._tiendas_canvas, bg=BG)
+        self._tiendas_win   = self._tiendas_canvas.create_window(
+            (0, 0), window=self._tiendas_frame, anchor="nw")
+        self._tiendas_frame.bind("<Configure>",
+            lambda e: self._tiendas_canvas.configure(
+                scrollregion=self._tiendas_canvas.bbox("all")))
+        self._tiendas_canvas.bind("<Configure>",
+            lambda e: self._tiendas_canvas.itemconfig(
+                self._tiendas_win, width=e.width))
+        self._tiendas_canvas.bind("<MouseWheel>",
+            lambda e: self._tiendas_canvas.yview_scroll(
+                int(-1*(e.delta/120)), "units"))
+
+        # Dict de tarjetas activas: nombre_tienda -> {frame, canvas, fill, lbl_estado, lbl_cnt}
+        self._tarjetas_tienda = {}
 
         # Footer
         footer = tk.Frame(main, bg=BG2, height=28)
@@ -615,12 +646,153 @@ class App(tk.Tk):
                      font=UI_B).pack(side="right", padx=10)
 
     def _build_estado_actual(self):
-        for w in self._estado_frame.winfo_children(): w.destroy()
-        self._lbl_estado_det = tk.Label(
-            self._estado_frame,
-            text="Sin proceso activo", bg=BG, fg=WHITE4,
-            font=("Segoe UI",8), wraplength=180, justify="left")
-        self._lbl_estado_det.pack(anchor="w")
+        # Compatibilidad — ya no se usa pero puede llamarse desde código antiguo
+        pass
+
+    def _tienda_card_crear(self, nombre):
+        """Crea una tarjeta de tienda en el panel derecho."""
+        if nombre in self._tarjetas_tienda:
+            return
+
+        nombre_corto = nombre[:28] + "…" if len(nombre) > 28 else nombre
+
+        card = tk.Frame(self._tiendas_frame, bg=BG3,
+                        highlightbackground=BORDER2, highlightthickness=1)
+        card.pack(fill="x", pady=2, padx=2)
+
+        # Nombre
+        tk.Label(card, text=nombre_corto, bg=BG3, fg=WHITE2,
+                 font=("Segoe UI", 7, "bold"),
+                 anchor="w").pack(fill="x", padx=6, pady=(5, 1))
+
+        # Barra de progreso
+        bar_c = tk.Canvas(card, bg=BG4, height=5, highlightthickness=0)
+        bar_c.pack(fill="x", padx=6, pady=2)
+        fill = bar_c.create_rectangle(0, 0, 0, 5, fill=ORANGE, outline="")
+
+        def _on_bar_resize(e, bc=bar_c, f=fill, d={"pct": 0}):
+            bc.coords(f, 0, 0, int(bc.winfo_width() * d["pct"]), 5)
+        bar_c.bind("<Configure>", _on_bar_resize)
+
+        # Estado + contador
+        bot = tk.Frame(card, bg=BG3)
+        bot.pack(fill="x", padx=6, pady=(0, 5))
+        lbl_estado = tk.Label(bot, text="Abriendo...", bg=BG3,
+                               fg=WHITE4, font=("Segoe UI", 7))
+        lbl_estado.pack(side="left")
+        lbl_cnt = tk.Label(bot, text="", bg=BG3,
+                            fg=WHITE4, font=("Segoe UI", 7))
+        lbl_cnt.pack(side="right")
+
+        self._tarjetas_tienda[nombre] = {
+            "frame":      card,
+            "canvas":     bar_c,
+            "fill":       fill,
+            "bar_data":   {"pct": 0},
+            "lbl_estado": lbl_estado,
+            "lbl_cnt":    lbl_cnt,
+            "listo":      0,
+            "falta":      0,
+            "dup":        0,
+            "total":      0,
+        }
+
+        # Scroll al fondo
+        self._tiendas_canvas.update_idletasks()
+        self._tiendas_canvas.yview_moveto(1.0)
+        self._actualizar_cnt_tiendas()
+
+    def _tienda_card_update(self, nombre, resultado, motivo_falta=""):
+        """
+        Actualiza la tarjeta de una tienda con el resultado de una fila.
+        resultado: 'LISTO' | 'FALTA' | 'DUP'
+        motivo_falta: texto descriptivo del motivo si es FALTA
+        """
+        if nombre not in self._tarjetas_tienda:
+            self._tienda_card_crear(nombre)
+
+        t = self._tarjetas_tienda[nombre]
+        t["total"] += 1
+
+        if resultado == "LISTO":
+            t["listo"] += 1
+        elif resultado == "FALTA":
+            t["falta"] += 1
+        elif resultado == "DUP":
+            t["dup"] += 1
+
+        # Calcular porcentaje — avanza proporcionalmente
+        total = t["total"]
+        listo = t["listo"]
+        pct   = min(1.0, listo / max(total, 1)) if total > 0 else 0
+
+        # Actualizar barra
+        t["bar_data"]["pct"] = pct
+        w = t["canvas"].winfo_width()
+        t["canvas"].coords(t["fill"], 0, 0, int(w * pct), 5)
+
+        # Actualizar contador
+        partes = []
+        if t["listo"]: partes.append("✓{}".format(t["listo"]))
+        if t["falta"]: partes.append("✗{}".format(t["falta"]))
+        if t["dup"]:   partes.append("⚠{}".format(t["dup"]))
+        t["lbl_cnt"].configure(text=" ".join(partes))
+
+        # Estado textual
+        if resultado == "LISTO":
+            t["lbl_estado"].configure(text="Insertando...", fg=GREEN)
+        elif resultado == "FALTA":
+            motivo = motivo_falta or "Tienda no encontrada"
+            t["lbl_estado"].configure(text="✗ " + motivo[:30], fg=RED)
+        elif resultado == "DUP":
+            t["lbl_estado"].configure(text="⚠ Duplicado", fg=YELLOW)
+
+    def _tienda_card_cerrar(self, nombre, ok=True):
+        """
+        Marca la tarjeta de una tienda como finalizada.
+        Cambia el borde: verde=ok, rojo=solo faltas, naranja=tiene dups.
+        """
+        if nombre not in self._tarjetas_tienda:
+            return
+        t = self._tarjetas_tienda[nombre]
+
+        # Completar barra al 100%
+        t["bar_data"]["pct"] = 1.0
+        w = t["canvas"].winfo_width()
+        t["canvas"].coords(t["fill"], 0, 0, w, 5)
+
+        # Determinar color del borde final
+        if t["falta"] > 0 and t["listo"] == 0:
+            border_color = RED
+            color_barra  = RED
+            estado_txt   = "✗ Sin ingresos"
+            estado_fg    = RED
+        elif t["falta"] > 0 or t["dup"] > 0:
+            border_color = YELLOW
+            color_barra  = YELLOW
+            estado_txt   = "⚠ Parcial"
+            estado_fg    = YELLOW
+        else:
+            border_color = GREEN
+            color_barra  = GREEN
+            estado_txt   = "✓ Completado"
+            estado_fg    = GREEN
+
+        t["frame"].configure(highlightbackground=border_color)
+        t["canvas"].itemconfig(t["fill"], fill=color_barra)
+        t["lbl_estado"].configure(text=estado_txt, fg=estado_fg)
+
+    def _tienda_card_limpiar(self):
+        """Limpia todas las tarjetas para un nuevo proceso."""
+        for w in self._tiendas_frame.winfo_children():
+            w.destroy()
+        self._tarjetas_tienda.clear()
+        self._actualizar_cnt_tiendas()
+
+    def _actualizar_cnt_tiendas(self):
+        n = len(self._tarjetas_tienda)
+        self._lbl_tiendas_cnt.configure(
+            text="{} tienda{}".format(n, "s" if n != 1 else "") if n else "")
 
     def _log_add(self, texto, tag=""):
         cm = {"ok":GREEN,"err":RED,"warn":YELLOW,
@@ -1174,6 +1346,9 @@ class App(tk.Tk):
         self._log_queue = _queue.Queue()
         c_listo = c_falta = c_dup = 0
 
+        # Limpiar tarjetas del proceso anterior
+        self.after(0, self._tienda_card_limpiar)
+
         def _procesar_cola():
             """Drena la cola de mensajes de a poco, suavemente."""
             procesados = 0
@@ -1186,6 +1361,18 @@ class App(tk.Tk):
                         self._set_prog_real(*datos)
                     elif tipo == "act":
                         self._set_actividad(*datos)
+                    elif tipo == "tarjeta":
+                        nombre_t, resultado, motivo = datos
+                        self._tienda_card_update(nombre_t, resultado, motivo)
+                    elif tipo == "tarjeta_crear":
+                        self._tienda_card_crear(datos[0])
+                    elif tipo == "tarjeta_cerrar":
+                        # Buscar la tarjeta por nombre parcial
+                        nombre_arch = datos[0]
+                        for k in list(self._tarjetas_tienda.keys()):
+                            if nombre_arch.lower() in k.lower() or k.lower() in nombre_arch.lower():
+                                self._tienda_card_cerrar(k)
+                                break
                     procesados += 1
                 except: break
             if self._proceso_activo or not self._log_queue.empty():
@@ -1247,12 +1434,63 @@ class App(tk.Tk):
                     if len(self._tiempos_fila) > 20:
                         self._tiempos_fila = self._tiempos_fila[-20:]
                     if self._total_filas > 0:
-                        # Rango 10%→95% para el procesamiento real
                         pct = 10 + min(85, self._proc_filas / self._total_filas * 85)
                         self._log_queue.put(("prog",
                             (pct, self._proc_filas, self._total_filas)))
 
-                # Resumen final
+                    # Extraer tienda y resultado para la tarjeta
+                    try:
+                        import re as _re2
+                        if "  listo  fila" in ll:
+                            m = _re2.search(r'listo\s+fila\s+\d+[:\s]+(.+)', linea, _re2.IGNORECASE)
+                            nombre_t = m.group(1).strip() if m else "Tienda"
+                            self._log_queue.put(("tarjeta", (nombre_t, "LISTO", "")))
+                        elif "  dup    fila" in ll:
+                            m = _re2.search(r'dup\s+fila\s+\d+[:\s]+(.+)', linea, _re2.IGNORECASE)
+                            nombre_t = m.group(1).strip() if m else "Tienda"
+                            self._log_queue.put(("tarjeta", (nombre_t, "DUP", "")))
+                        elif "  falta  fila" in ll:
+                            # Detectar motivo real del FALTA
+                            motivo = "Tienda no encontrada"
+                            if "hoja invalida" in ll:
+                                motivo = "Archivo sin hoja válida"
+                            elif "encabezados" in ll:
+                                motivo = "Encabezados incorrectos"
+                            elif "no se pudo abrir" in ll:
+                                motivo = "No se pudo abrir el archivo"
+                            elif "bloqueado" in ll:
+                                motivo = "Archivo bloqueado por Excel"
+                            else:
+                                # Extraer nombre de la tienda buscada
+                                m = _re2.search(r"falta\s+fila\s+\d+[:\s]+'?([^']+)'?", linea, _re2.IGNORECASE)
+                                nombre_t_raw = m.group(1).strip() if m else ""
+                                if nombre_t_raw:
+                                    motivo = "No encontrada: {}".format(nombre_t_raw[:25])
+                            m = _re2.search(r'falta\s+fila\s+\d+[:\s]+(.+)', linea, _re2.IGNORECASE)
+                            nombre_t = m.group(1).strip() if m else "Tienda"
+                            # Limpiar comillas del nombre
+                            nombre_t = nombre_t.strip("'\"")
+                            self._log_queue.put(("tarjeta", (nombre_t, "FALTA", motivo)))
+                    except Exception:
+                        pass
+
+                # Detectar apertura de tienda
+                if ll.startswith("  abriendo "):
+                    import re as _re3
+                    m = _re3.search(r'abriendo\s+(.+?)\.\.\.', linea, _re3.IGNORECASE)
+                    if m:
+                        nombre_t = m.group(1).strip()
+                        self._log_queue.put(("tarjeta_crear", (nombre_t,)))
+
+                # Detectar guardado de tienda (cierre de tarjeta)
+                if "[ok] guardado:" in ll:
+                    import re as _re4
+                    m = _re4.search(r'guardado:\s*(.+)', linea, _re3.IGNORECASE)
+                    if m:
+                        nombre_arch = m.group(1).strip()
+                        # Quitar extension
+                        nombre_sin_ext = nombre_arch.rsplit(".", 1)[0] if "." in nombre_arch else nombre_arch
+                        self._log_queue.put(("tarjeta_cerrar", (nombre_sin_ext,)))
                 if ls.startswith("listo") and ":" in ls:
                     try: c_listo = int(linea.split(":")[-1].strip().split()[0])
                     except: pass
@@ -1955,6 +2193,180 @@ class App(tk.Tk):
             icono, titulo, detalle, color = item
             self._diag_row(frame, icono, titulo, detalle, color)
 
+
+    # =========================================================================
+    # LISTA DE OMISIONES
+    # =========================================================================
+    def _abrir_omisiones(self):
+        import json as _json, glob as _g, importlib.util
+
+        # Leer omisiones actuales
+        omisiones_file = os.path.join(BASE_DIR, "omisiones.json")
+        try:
+            with open(omisiones_file, "r", encoding="utf-8") as f:
+                omisiones_raw = _json.load(f)
+        except Exception:
+            omisiones_raw = {}
+
+        # Leer archivos disponibles para el autocompletado
+        try:
+            spec = importlib.util.spec_from_file_location("config_local", CONFIG_PY)
+            cfg  = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(cfg)
+            carpeta = cfg.CARPETA_TIENDAS
+            archivos_disp = sorted([
+                os.path.splitext(os.path.basename(r))[0]
+                for r in _g.glob(os.path.join(carpeta, "*.xls*"))
+                if not os.path.basename(r).startswith("~$")
+            ])
+        except Exception:
+            archivos_disp = []
+
+        dlg = tk.Toplevel(self)
+        dlg.title("Lista de Omisiones")
+        dlg.geometry("700x520")
+        dlg.configure(bg=BG)
+        dlg.resizable(True, True)
+        dlg.grab_set()
+        dlg.transient(self)
+
+        tk.Frame(dlg, bg=ORANGE3, height=3).pack(fill="x")
+
+        hdr = tk.Frame(dlg, bg=BG2)
+        hdr.pack(fill="x")
+        tk.Label(hdr, text="Lista de Omisiones", bg=BG2, fg=WHITE,
+                 font=("Segoe UI",13,"bold")).pack(side="left", padx=20, pady=12)
+        tk.Label(hdr,
+                 text="Fuerza el ingreso ignorando la búsqueda automática",
+                 bg=BG2, fg=WHITE3, font=UI_SM).pack(side="left", padx=4)
+        tk.Frame(dlg, bg=BORDER, height=1).pack(fill="x")
+
+        # Explicación
+        tk.Label(dlg,
+                 text="  Columna E (como aparece en INGRESO_MASIVO)  →  Nombre del archivo de tienda (sin .xlsx)",
+                 bg=BG, fg=WHITE4, font=("Segoe UI",8)).pack(anchor="w", padx=16, pady=(8,4))
+
+        # Encabezados tabla
+        enc = tk.Frame(dlg, bg=BG3)
+        enc.pack(fill="x", padx=16)
+        tk.Label(enc, text="Nombre en Columna E", bg=BG3, fg=WHITE3,
+                 font=("Segoe UI",8,"bold"), width=30, anchor="w").pack(
+                     side="left", padx=8, pady=5)
+        tk.Label(enc, text="Nombre del archivo destino (sin .xlsx)", bg=BG3,
+                 fg=WHITE3, font=("Segoe UI",8,"bold"), anchor="w").pack(
+                     side="left", padx=4, pady=5)
+
+        # Área scrollable de filas
+        outer = tk.Frame(dlg, bg=BG)
+        outer.pack(fill="both", expand=True, padx=16, pady=4)
+        cvs = tk.Canvas(outer, bg=BG, highlightthickness=0)
+        vsb = tk.Scrollbar(outer, orient="vertical", command=cvs.yview)
+        cvs.configure(yscrollcommand=vsb.set)
+        vsb.pack(side="right", fill="y")
+        cvs.pack(side="left", fill="both", expand=True)
+        body = tk.Frame(cvs, bg=BG)
+        win  = cvs.create_window((0,0), window=body, anchor="nw")
+        body.bind("<Configure>",
+                  lambda e: cvs.configure(scrollregion=cvs.bbox("all")))
+        cvs.bind("<Configure>",
+                 lambda e: cvs.itemconfig(win, width=e.width))
+        cvs.bind("<MouseWheel>",
+                 lambda e: cvs.yview_scroll(int(-1*(e.delta/120)), "units"))
+
+        filas_om = []  # lista de (var_nombre, var_archivo, frame)
+
+        def _agregar_fila(nombre_e="", nombre_arch=""):
+            fila_f = tk.Frame(body, bg=BG)
+            fila_f.pack(fill="x", pady=2)
+
+            var_e    = tk.StringVar(value=nombre_e)
+            var_arch = tk.StringVar(value=nombre_arch)
+
+            tk.Entry(fila_f, textvariable=var_e, bg=BG4, fg=WHITE,
+                     font=UI_SM, relief="flat", bd=0, width=30,
+                     highlightbackground=BORDER2, highlightthickness=1,
+                     insertbackground=ORANGE).pack(side="left", ipady=5, padx=(0,6))
+
+            ent_arch = tk.Entry(fila_f, textvariable=var_arch, bg=BG4, fg=GREEN,
+                                font=UI_SM, relief="flat", bd=0, width=38,
+                                highlightbackground=BORDER2, highlightthickness=1,
+                                insertbackground=GREEN)
+            ent_arch.pack(side="left", ipady=5, padx=(0,4), fill="x", expand=True)
+
+            # Autocompletado al escribir
+            def _autocomplete(e, ent=ent_arch, var=var_arch):
+                txt = var.get().strip().lower()
+                if not txt or len(txt) < 2:
+                    return
+                matches = [a for a in archivos_disp if txt in a.lower()]
+                if len(matches) == 1:
+                    var.set(matches[0])
+                    ent.icursor("end")
+
+            ent_arch.bind("<FocusOut>", _autocomplete)
+
+            idx = len(filas_om)
+            def _del(i=idx):
+                try:
+                    filas_om[i]["frame"].destroy()
+                    filas_om[i] = None
+                except Exception:
+                    pass
+
+            tk.Button(fila_f, text="✕", bg=BG, fg=RED,
+                      font=("Segoe UI",9), relief="flat", cursor="hand2",
+                      bd=0, padx=6, activebackground=BG3,
+                      command=_del).pack(side="left", padx=2)
+
+            filas_om.append({"frame": fila_f, "e": var_e, "arch": var_arch})
+
+        # Cargar omisiones existentes
+        for nombre_e, nombre_arch in omisiones_raw.items():
+            _agregar_fila(nombre_e, nombre_arch)
+
+        # Nota archivos disponibles
+        nota = "Archivos disponibles: {}".format(len(archivos_disp))
+        tk.Label(dlg, text=nota, bg=BG, fg=WHITE4,
+                 font=("Segoe UI",7)).pack(anchor="w", padx=16, pady=(0,2))
+
+        # Botones inferiores
+        bf = tk.Frame(dlg, bg=BG)
+        bf.pack(fill="x", padx=16, pady=10)
+
+        tk.Button(bf, text="+ Agregar fila", bg=BG3, fg=ORANGE3,
+                  font=UI_SM, relief="flat", cursor="hand2",
+                  bd=0, padx=12, pady=7, activebackground=BG4,
+                  command=lambda: _agregar_fila()).pack(side="left", padx=(0,8))
+
+        def _guardar():
+            nuevo = {}
+            for r in filas_om:
+                if r is None:
+                    continue
+                k = r["e"].get().strip()
+                v = r["arch"].get().strip()
+                if k and v:
+                    nuevo[k] = v
+            try:
+                with open(omisiones_file, "w", encoding="utf-8") as f:
+                    _json.dump(nuevo, f, ensure_ascii=False, indent=2)
+                self._log_add("✓ Lista de omisiones guardada ({} entradas).".format(
+                    len(nuevo)), "ok")
+                dlg.destroy()
+            except Exception as e:
+                messagebox.showerror("Error", "No se pudo guardar:\n{}".format(e),
+                                     parent=dlg)
+
+        tk.Button(bf, text="Cancelar", bg=BG3, fg=WHITE3,
+                  font=UI_SM, relief="flat", cursor="hand2",
+                  bd=0, padx=14, pady=7, activebackground=BG4,
+                  command=dlg.destroy).pack(side="left")
+
+        tk.Button(bf, text="  Guardar omisiones  ",
+                  bg=ORANGE3, fg=WHITE, font=UI_B,
+                  relief="flat", cursor="hand2", bd=0,
+                  padx=18, pady=7, activebackground=ORANGE2,
+                  command=_guardar).pack(side="right")
 
     # =========================================================================
     # SISTEMA DE ACTUALIZACIONES
