@@ -11,6 +11,146 @@ try:
 except ImportError:
     PIL_OK = False
 
+# ── CONFIGURACION GITHUB ──────────────────────────────────────────────────────
+GITHUB_USER   = "wichoo2"
+GITHUB_REPO   = "ingreso-masivo-xpress"
+GITHUB_BRANCH = "main"
+GITHUB_TOKEN  = ""   # dejar vacio si el repo es publico
+
+# URLs base
+_GH_RAW  = "https://raw.githubusercontent.com/{}/{}/{}/{{}}".format(
+    GITHUB_USER, GITHUB_REPO, GITHUB_BRANCH)
+_GH_VER  = _GH_RAW.format("version.json")
+
+# ── SISTEMA DE ACTUALIZACIONES ────────────────────────────────────────────────
+def _leer_version_local():
+    try:
+        base = os.path.dirname(os.path.abspath(__file__))
+        ruta = os.path.join(base, "version.json")
+        with open(ruta, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except Exception:
+        return {"version": "0.0"}
+
+def _consultar_version_github():
+    """
+    Consulta version.json en GitHub usando urllib (sin dependencias externas).
+    Agrega timestamp anti-cache para siempre obtener la version mas reciente.
+    Retorna el dict de version o None si hay error.
+    """
+    try:
+        import urllib.request
+        url = "{}?_={}".format(_GH_VER, int(time.time()))
+        req = urllib.request.Request(url)
+        req.add_header("Cache-Control", "no-cache, no-store, must-revalidate")
+        req.add_header("Pragma", "no-cache")
+        req.add_header("Expires", "0")
+        if GITHUB_TOKEN:
+            req.add_header("Authorization", "token {}".format(GITHUB_TOKEN))
+        with urllib.request.urlopen(req, timeout=8) as r:
+            return json.loads(r.read().decode("utf-8"))
+    except Exception:
+        return None
+
+def _descargar_archivo_github(nombre_archivo):
+    """Descarga un archivo desde GitHub y retorna su contenido como bytes."""
+    try:
+        import urllib.request
+        url = "{}?_={}".format(_GH_RAW.format(nombre_archivo), int(time.time()))
+        req = urllib.request.Request(url)
+        if GITHUB_TOKEN:
+            req.add_header("Authorization", "token {}".format(GITHUB_TOKEN))
+        with urllib.request.urlopen(req, timeout=15) as r:
+            return r.read()
+    except Exception as e:
+        return None
+
+def _hay_actualizacion():
+    """
+    Compara la version local con GitHub.
+    Retorna (hay_update: bool, version_remota: dict | None)
+    """
+    local   = _leer_version_local()
+    remota  = _consultar_version_github()
+    if remota is None:
+        return False, None
+    v_local  = str(local.get("version",  "0.0")).strip()
+    v_remota = str(remota.get("version", "0.0")).strip()
+    return v_local != v_remota, remota
+
+def _aplicar_actualizacion(version_remota, callback_progreso=None, callback_log=None):
+    """
+    Descarga y reemplaza los archivos listados en version.json de GitHub.
+    - Nunca toca config_local.py
+    - Hace backup .bak de cada archivo antes de reemplazar
+    - Actualiza version.json local al final
+    Retorna (ok: bool, mensaje: str)
+    """
+    base     = os.path.dirname(os.path.abspath(__file__))
+    archivos = version_remota.get("archivos", [])
+    total    = len(archivos) + 1  # +1 por version.json al final
+
+    def _log(msg):
+        if callback_log:
+            callback_log(msg)
+
+    def _prog(n):
+        if callback_progreso:
+            callback_progreso(n / total)
+
+    errores = []
+    for i, nombre in enumerate(archivos):
+        # Nunca actualizar config_local.py para no borrar rutas del usuario
+        if nombre == "config_local.py":
+            _log("  [SKIP] config_local.py — no se actualiza")
+            _prog(i + 1)
+            continue
+
+        _log("  Descargando {}...".format(nombre))
+        contenido = _descargar_archivo_github(nombre)
+        if contenido is None:
+            errores.append(nombre)
+            _log("  [ERROR] No se pudo descargar {}".format(nombre))
+            _prog(i + 1)
+            continue
+
+        ruta_dst = os.path.join(base, nombre)
+        # Backup del archivo anterior
+        if os.path.isfile(ruta_dst):
+            try:
+                with open(ruta_dst + ".bak", "wb") as f_bak:
+                    with open(ruta_dst, "rb") as f_src:
+                        f_bak.write(f_src.read())
+            except Exception:
+                pass
+
+        # Escribir nuevo contenido
+        try:
+            with open(ruta_dst, "wb") as f:
+                f.write(contenido)
+            _log("  ✓ {}".format(nombre))
+        except Exception as e:
+            errores.append(nombre)
+            _log("  [ERROR] {}: {}".format(nombre, e))
+
+        _prog(i + 1)
+
+    # Actualizar version.json local
+    try:
+        ruta_ver = os.path.join(base, "version.json")
+        with open(ruta_ver, "w", encoding="utf-8") as f:
+            json.dump(version_remota, f, ensure_ascii=False, indent=2)
+        _log("  ✓ version.json actualizado a {}".format(
+            version_remota.get("version")))
+    except Exception as e:
+        _log("  [ERROR] version.json: {}".format(e))
+
+    _prog(total)
+
+    if errores:
+        return False, "Errores en: {}".format(", ".join(errores))
+    return True, "OK"
+
 def _mostrar_error(err):
     try:
         r = tk.Tk(); r.withdraw()
@@ -131,10 +271,13 @@ class App(tk.Tk):
         self._pulse_after    = None
         self._total_filas    = 0
         self._proc_filas     = 0
-        self._eta_after      = None   # handle para cancelar tick ETA
-        self._tiempos_fila   = []     # lista de timestamps por fila procesada
+        self._eta_after      = None
+        self._tiempos_fila   = []
+        self._version_remota = None   # se llena si hay update disponible
         self._build_ui()
         self.bind("<F5>", lambda e: self._ejecutar())
+        # Verificar actualizaciones en segundo plano al abrir
+        threading.Thread(target=self._check_update_bg, daemon=True).start()
 
     # ── BUILD UI ──────────────────────────────────────────────────────────────
     def _build_ui(self):
@@ -195,11 +338,25 @@ class App(tk.Tk):
 
         tk.Frame(sb, bg=BORDER, height=1).pack(fill="x", padx=16, pady=6)
 
+        # Banner de actualizacion (oculto por defecto)
+        self._update_banner = tk.Frame(sb, bg="#1a3a1a", cursor="hand2")
+        self._update_lbl    = tk.Label(self._update_banner, text="",
+                                        bg="#1a3a1a", fg=GREEN,
+                                        font=("Segoe UI", 8, "bold"),
+                                        wraplength=200, justify="left")
+        self._update_lbl.pack(padx=10, pady=6)
+        self._update_banner.bind("<Button-1>", lambda e: self._mostrar_dialogo_update())
+        self._update_lbl.bind("<Button-1>",    lambda e: self._mostrar_dialogo_update())
+        # No se hace pack todavía — se muestra solo si hay update
+
         # Info abajo del sidebar
         info = tk.Frame(sb, bg=BG2)
         info.pack(side="bottom", fill="x", padx=16, pady=14)
-        tk.Label(info, text="F5 ejecutar  |  v3.0", bg=BG2,
-                 fg=WHITE4, font=("Segoe UI",8)).pack(anchor="w")
+        ver_local = _leer_version_local().get("version", "?")
+        self._lbl_ver = tk.Label(info,
+                                  text="F5 ejecutar  |  v{}".format(ver_local),
+                                  bg=BG2, fg=WHITE4, font=("Segoe UI",8))
+        self._lbl_ver.pack(anchor="w")
         tk.Label(info, text="Xpress El Salvador 2026", bg=BG2,
                  fg=WHITE4, font=("Segoe UI",7)).pack(anchor="w", pady=(2,0))
 
@@ -365,7 +522,8 @@ class App(tk.Tk):
         footer = tk.Frame(main, bg=BG2, height=28)
         footer.pack(fill="x", side="bottom")
         footer.pack_propagate(False)
-        tk.Label(footer, text="Ingreso Masivo  |  Xpress El Salvador  |  v3.0",
+        _ver_actual = _leer_version_local().get("version", "?")
+        tk.Label(footer, text="Ingreso Masivo  |  Xpress El Salvador  |  v{}".format(_ver_actual),
                  bg=BG2, fg=WHITE4,
                  font=("Segoe UI",8)).pack(side="left", padx=16, pady=6)
         self._lbl_footer_hora = tk.Label(footer, text="",
@@ -1796,6 +1954,143 @@ class App(tk.Tk):
                 continue
             icono, titulo, detalle, color = item
             self._diag_row(frame, icono, titulo, detalle, color)
+
+
+    # =========================================================================
+    # SISTEMA DE ACTUALIZACIONES
+    # =========================================================================
+    def _check_update_bg(self):
+        """Corre en background — consulta GitHub y muestra banner si hay update."""
+        try:
+            hay, remota = _hay_actualizacion()
+            if hay and remota:
+                self._version_remota = remota
+                self.after(0, self._mostrar_banner_update, remota)
+        except Exception:
+            pass
+
+    def _mostrar_banner_update(self, remota):
+        """Muestra el banner verde en el sidebar con la version disponible."""
+        v_nueva = remota.get("version", "?")
+        v_local = _leer_version_local().get("version", "?")
+        self._update_lbl.configure(
+            text="🔄 Nueva versión disponible\n"
+                 "  {} → {}\n"
+                 "  Clic para actualizar".format(v_local, v_nueva))
+        self._update_banner.pack(fill="x", padx=10, pady=(0, 6),
+                                  before=self._lbl_ver.master)
+
+    def _mostrar_dialogo_update(self):
+        """Muestra el dialogo de confirmacion de actualizacion."""
+        if not self._version_remota:
+            return
+        remota  = self._version_remota
+        v_nueva = remota.get("version", "?")
+        v_local = _leer_version_local().get("version", "?")
+        notas   = remota.get("notas", "Sin notas.")
+        archivos = remota.get("archivos", [])
+
+        dlg = tk.Toplevel(self)
+        dlg.title("Actualización disponible")
+        dlg.geometry("420x340")
+        dlg.configure(bg=BG2)
+        dlg.resizable(False, False)
+        dlg.grab_set()
+        dlg.transient(self)
+
+        tk.Frame(dlg, bg=GREEN, height=3).pack(fill="x")
+        tk.Label(dlg, text="🔄 Actualización disponible",
+                 bg=BG2, fg=WHITE, font=("Segoe UI", 12, "bold")).pack(pady=(16, 4))
+        tk.Label(dlg, text="v{}  →  v{}".format(v_local, v_nueva),
+                 bg=BG2, fg=GREEN, font=("Segoe UI", 11, "bold")).pack()
+
+        tk.Frame(dlg, bg=BORDER, height=1).pack(fill="x", padx=20, pady=10)
+
+        tk.Label(dlg, text="Novedades:", bg=BG2, fg=WHITE3,
+                 font=("Segoe UI", 8, "bold")).pack(anchor="w", padx=20)
+        tk.Label(dlg, text=notas, bg=BG2, fg=WHITE3,
+                 font=("Segoe UI", 8), wraplength=360,
+                 justify="left").pack(anchor="w", padx=20, pady=(2, 8))
+
+        tk.Label(dlg, text="Archivos a actualizar: {}".format(
+            ", ".join(archivos)),
+            bg=BG2, fg=WHITE4, font=("Segoe UI", 7),
+            wraplength=360, justify="left").pack(anchor="w", padx=20)
+
+        tk.Frame(dlg, bg=BORDER, height=1).pack(fill="x", padx=20, pady=10)
+
+        # Barra progreso
+        prog_c = tk.Canvas(dlg, bg=BG3, height=6, highlightthickness=0)
+        prog_c.pack(fill="x", padx=20, pady=(0, 6))
+        prog_fill = prog_c.create_rectangle(0, 0, 0, 6, fill=GREEN, outline="")
+
+        def _set_prog(pct):
+            w = prog_c.winfo_width()
+            prog_c.coords(prog_fill, 0, 0, int(w * pct), 6)
+            dlg.update_idletasks()
+
+        log_lbl = tk.Label(dlg, text="", bg=BG2, fg=WHITE3,
+                            font=("Segoe UI", 8))
+        log_lbl.pack(pady=2)
+
+        bf = tk.Frame(dlg, bg=BG2)
+        bf.pack(fill="x", padx=20, pady=(4, 14))
+        btn_cancel = tk.Button(bf, text="Cancelar", bg=BG3, fg=WHITE3,
+                               font=("Segoe UI", 9), relief="flat",
+                               cursor="hand2", bd=0, padx=14, pady=7,
+                               activebackground=BG4,
+                               command=dlg.destroy)
+        btn_cancel.pack(side="left")
+        btn_update = tk.Button(bf, text="  Actualizar ahora  ",
+                               bg=GREEN, fg=BG,
+                               font=("Segoe UI", 10, "bold"), relief="flat",
+                               cursor="hand2", bd=0, padx=18, pady=7,
+                               activebackground="#00C080")
+        btn_update.pack(side="right")
+
+        def _hacer_update():
+            btn_update.configure(state="disabled")
+            btn_cancel.configure(state="disabled")
+
+            def _worker():
+                ok, msg = _aplicar_actualizacion(
+                    remota,
+                    callback_progreso=lambda p: dlg.after(0, _set_prog, p),
+                    callback_log=lambda m: dlg.after(0, log_lbl.configure, {"text": m[-60:]}))
+
+                if ok:
+                    dlg.after(0, lambda: (
+                        messagebox.showinfo(
+                            "Actualización completa",
+                            "✓ Versión {} instalada.\n\n"
+                            "El programa se reiniciará.".format(v_nueva),
+                            parent=dlg),
+                        dlg.destroy(),
+                        self._reiniciar()))
+                else:
+                    dlg.after(0, lambda: (
+                        messagebox.showerror(
+                            "Error", "Algunos archivos fallaron:\n{}".format(msg),
+                            parent=dlg),
+                        btn_cancel.configure(state="normal")))
+
+            threading.Thread(target=_worker, daemon=True).start()
+
+        btn_update.configure(command=_hacer_update)
+
+    def _reiniciar(self):
+        """Reinicia el programa para aplicar los nuevos archivos."""
+        try:
+            base = os.path.dirname(os.path.abspath(__file__))
+            # Buscar el launcher o el propio script
+            launcher = os.path.join(base, "launcher.exe")
+            if os.path.isfile(launcher):
+                subprocess.Popen([launcher], cwd=base)
+            else:
+                subprocess.Popen([sys.executable, __file__], cwd=base)
+        except Exception:
+            pass
+        self.destroy()
 
 
 if __name__ == "__main__":

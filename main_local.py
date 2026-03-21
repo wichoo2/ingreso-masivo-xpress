@@ -78,39 +78,54 @@ def _verificar_bloqueados(indice):
             if _archivo_bloqueado(ruta)]
 
 # =============================================================================
-# PRESERVAR ZIP (solo tema)
+# PRESERVAR ZIP (solo tema) — trabaja con BytesIO, sin archivos temporales
 # =============================================================================
-def _preservar_partes_zip(ruta_orig, ruta_nuevo):
+def _preservar_tema_en_buf(ruta_orig, buf):
+    """
+    Preserva xl/theme/theme1.xml del archivo original dentro del buffer BytesIO.
+    Modifica el buffer en memoria sin tocar el disco.
+    """
+    import io as _io
     TEMA = "xl/theme/theme1.xml"
     try:
-        if not os.path.isfile(ruta_orig) or not os.path.isfile(ruta_nuevo):
+        if not os.path.isfile(ruta_orig):
             return
         with _zipfile_main.ZipFile(ruta_orig, 'r') as z:
             if TEMA not in z.namelist():
                 return
             tema_orig = z.read(TEMA)
-        with _zipfile_main.ZipFile(ruta_nuevo, 'r') as z:
+
+        buf.seek(0)
+        with _zipfile_main.ZipFile(buf, 'r') as z:
             if TEMA not in z.namelist():
                 return
             if z.read(TEMA) == tema_orig:
-                return  # identicos — nada que hacer
-        ruta_patch = ruta_nuevo + ".patch"
-        with _zipfile_main.ZipFile(ruta_nuevo, 'r') as z_in:
-            with _zipfile_main.ZipFile(ruta_patch, 'w',
-                                        compression=_zipfile_main.ZIP_DEFLATED) as z_out:
-                for item in z_in.infolist():
-                    data = tema_orig if item.filename == TEMA else z_in.read(item.filename)
-                    z_out.writestr(item, data)
-        if os.path.isfile(ruta_patch) and os.path.getsize(ruta_patch) > 0:
-            os.remove(ruta_nuevo)
-            os.rename(ruta_patch, ruta_nuevo)
+                return  # identicos
+
+        # Reconstruir con tema original
+        buf.seek(0)
+        datos_zip = {}
+        infos_zip = {}
+        with _zipfile_main.ZipFile(buf, 'r') as z_in:
+            for item in z_in.infolist():
+                datos_zip[item.filename] = z_in.read(item.filename)
+                infos_zip[item.filename] = item
+        datos_zip[TEMA] = tema_orig
+
+        buf_nuevo = _io.BytesIO()
+        with _zipfile_main.ZipFile(buf_nuevo, 'w',
+                                    compression=_zipfile_main.ZIP_DEFLATED) as z_out:
+            for fn, data in datos_zip.items():
+                z_out.writestr(infos_zip[fn], data)
+
+        # Reemplazar contenido del buffer original
+        contenido = buf_nuevo.getvalue()
+        buf.seek(0)
+        buf.truncate()
+        buf.write(contenido)
+        buf.seek(0)
     except Exception:
-        try:
-            p = ruta_nuevo + ".patch"
-            if os.path.isfile(p):
-                os.remove(p)
-        except Exception:
-            pass
+        pass
 
 # =============================================================================
 # CACHE DE LIBROS
@@ -122,7 +137,9 @@ class CacheLibros:
         self._resumen = {}
 
     def tiene(self, clave):      return clave in self._libros
-    def obtener(self, clave):    return self._libros.get(clave, {})
+    def obtener(self, clave):    return self._libros.get(clave, {})\
+
+
     def count(self):             return len(self._libros)
     def get_resumen(self):       return self._resumen
 
@@ -139,28 +156,33 @@ class CacheLibros:
             self._resumen[clave][tipo] = self._resumen[clave].get(tipo, 0) + 1
 
     def cerrar_todos(self):
+        import io as _io
         for clave, datos in list(self._libros.items()):
             nombre    = os.path.basename(datos["path"])
             ruta_orig = datos["path"]
-            ruta_tmp  = ruta_orig + ".tmp"
 
             guardado = False
             for intento in range(1, MAX_REINTENTOS + 1):
                 try:
-                    datos["wb"].save(ruta_tmp)
+                    # Guardar en buffer de memoria — sin crear ningun archivo
+                    buf = _io.BytesIO()
+                    datos["wb"].save(buf)
                     datos["wb"].close()
-                    if os.path.isfile(ruta_tmp) and os.path.getsize(ruta_tmp) > 0:
-                        _preservar_partes_zip(ruta_orig, ruta_tmp)
-                        if os.path.isfile(ruta_orig):
-                            os.remove(ruta_orig)
-                        os.rename(ruta_tmp, ruta_orig)
+                    contenido = buf.getvalue()
+
+                    if contenido:
+                        # Preservar tema de colores del original
+                        _preservar_tema_en_buf(ruta_orig, buf)
+                        contenido = buf.getvalue()
+
+                        # Escribir directamente sobre el archivo original
+                        with open(ruta_orig, 'wb') as f:
+                            f.write(contenido)
                         _forzar_sync_onedrive(ruta_orig)
                         _log("[OK] Guardado: {}".format(nombre))
                         guardado = True
                     else:
-                        _log("[ERROR] Temporal vacio: {}".format(nombre))
-                        if os.path.isfile(ruta_tmp):
-                            os.remove(ruta_tmp)
+                        _log("[ERROR] Buffer vacio: {}".format(nombre))
                     break
                 except PermissionError:
                     if intento < MAX_REINTENTOS:
@@ -172,9 +194,6 @@ class CacheLibros:
                             nombre, MAX_REINTENTOS))
                 except Exception as e:
                     _log("[ERROR] Al guardar {}: {}".format(nombre, e))
-                    if os.path.isfile(ruta_tmp):
-                        try: os.remove(ruta_tmp)
-                        except: pass
                     break
 
             if not guardado:
@@ -602,23 +621,21 @@ def main():
     # PASO 6: Guardar INGRESO_MASIVO
     # ------------------------------------------------------------------
     _log("\nGuardando INGRESO_MASIVO...")
-    ruta_tmp = ARCHIVO_INGRESO + ".tmp"
     try:
-        wb_origen.save(ruta_tmp)
+        import io as _io
+        buf = _io.BytesIO()
+        wb_origen.save(buf)
         wb_origen.close()
-        if os.path.isfile(ruta_tmp) and os.path.getsize(ruta_tmp) > 0:
-            if os.path.isfile(ARCHIVO_INGRESO):
-                os.remove(ARCHIVO_INGRESO)
-            os.rename(ruta_tmp, ARCHIVO_INGRESO)
+        contenido = buf.getvalue()
+        if contenido:
+            with open(ARCHIVO_INGRESO, 'wb') as f:
+                f.write(contenido)
             _forzar_sync_onedrive(ARCHIVO_INGRESO)
             _log("[OK] INGRESO_MASIVO guardado")
         else:
             _log("[ERROR] No se pudo guardar INGRESO_MASIVO")
     except Exception as e:
         _log("[ERROR] {}".format(e))
-        if os.path.isfile(ruta_tmp):
-            try: os.remove(ruta_tmp)
-            except: pass
 
     t_total = time.time() - t_inicio
 

@@ -1,7 +1,7 @@
 {
-  "version": "3.9.5",
-  "fecha": "18/03/2026",
-  "notas": "Version descarga automatica",
+  "version": "3.9.4",
+  "fecha": "20/03/2026",
+  "notas": "- Sistema de actualizaciones automaticas desde GitHub\n- Sincronizacion OneDrive sin crear ni eliminar archivos\n- Version dinamica en sidebar y footer\n- Guardado via BytesIO sin archivos temporales",
   "archivos": [
     "Ingreso_Masivo_XPES.pyw",
     "main_local.py",
