@@ -1,0 +1,1225 @@
+=== INGRESO MASIVO - LOG 27/03/2026 02:30:57 ===
+
+============================================================
+  MOVER PAQUETES - MODO LOCAL
+============================================================
+
+Cargando INGRESO_MASIVO...
+[OK] Hoja TIENDAS: 11023 variantes
+[OK] Omisiones: 0 entradas
+[OK] Blacklist: 7 tiendas bloqueadas
+
+Indexando carpeta de tiendas...
+[OK] 10341 archivos encontrados (10310 claves sin sufijo)
+[AVISO] Sin cache col E.
+
+Leidas 1083 filas en 0.02s
+  BLOQ   fila 4: '7X7-113' (blacklist)
+  BLOQ   fila 5: '7X7-113' (blacklist)
+  BLOQ   fila 6: '7X7-113' (blacklist)
+  BLOQ   fila 7: '7X7-113' (blacklist)
+  BLOQ   fila 8: '7X7-113' (blacklist)
+  [NIV4] fila 9: 'ABARCA REPUESTOS-110' -> 'ABARCA REPUESTOS-110 (SCGE)'
+  [NIV4] fila 10: 'ABARCA REPUESTOS-110' -> 'ABARCA REPUESTOS-110 (SCGE)'
+  [NIV4] fila 11: 'ABARCA REPUESTOS-110' -> 'ABARCA REPUESTOS-110 (SCGE)'
+  [NIV4] fila 12: 'ABARCA REPUESTOS-110' -> 'ABARCA REPUESTOS-110 (SCGE)'
+  [NIV4] fila 22: 'ACCESORIOS JS-116' -> 'ACCESORIOS JS-116 (SCGE)'
+  [NIV4] fila 23: 'ACCESORIOS TEJADA-124' -> 'ACCESORIOS TEJADA-124 (SCGE)'
+  [NIV4] fila 24: 'ACCESORIOS ZALDAÑA-119' -> 'ACCESORIOS ZALDAÑA-119 (SCGE)'
+  [NIV4] fila 25: 'ACCESORIZATE SV-133' -> 'ACCESORIZATE SV-133 (SCGE)'
+  [NIV4] fila 29: 'ADVANCED STORE-126' -> 'ADVANCED STORE-126 (SCGE)'
+  [NIV4] fila 30: 'ADVANCED STORE-126' -> 'ADVANCED STORE-126 (SCGE)'
+  [NIV4] fila 31: 'ADVANCED STORE-126' -> 'ADVANCED STORE-126 (SCGE)'
+  [NIV4] fila 32: 'ADVANCED STORE-126' -> 'ADVANCED STORE-126 (SCGE)'
+  [NIV4] fila 33: 'ADVANCED STORE-126' -> 'ADVANCED STORE-126 (SCGE)'
+  [NIV4] fila 34: 'ADVANCED STORE-126' -> 'ADVANCED STORE-126 (SCGE)'
+  [NIV4] fila 39: 'AG SHOP ONLINE - 116' -> 'AG SHOP ONLINE - 116 (SCGE)'
+  [NIV4] fila 40: 'AG SHOP ONLINE - 116' -> 'AG SHOP ONLINE - 116 (SCGE)'
+  [NIV4] fila 41: 'AG SHOP ONLINE - 116' -> 'AG SHOP ONLINE - 116 (SCGE)'
+  [NIV4] fila 42: 'AGATAS ACCESORIOS-116' -> 'AGATAS ACCESORIOS-116 (SCGE)'
+  [NIV4] fila 43: 'AGATAS ACCESORIOS-116' -> 'AGATAS ACCESORIOS-116 (SCGE)'
+  [NIV4] fila 44: 'AGATAS ACCESORIOS-116' -> 'AGATAS ACCESORIOS-116 (SCGE)'
+  [NIV4] fila 45: 'AGATAS ACCESORIOS-116' -> 'AGATAS ACCESORIOS-116 (SCGE)'
+  [NIV4] fila 46: 'AGATAS ACCESORIOS-116' -> 'AGATAS ACCESORIOS-116 (SCGE)'
+  BLOQ   fila 47: 'AGU GU BABY- SS-119' (blacklist)
+  BLOQ   fila 48: 'AGU GU BABY- SS-119' (blacklist)
+  BLOQ   fila 49: 'AGU GU BABY- SS-119' (blacklist)
+  [NIV4] fila 50: 'ÁGUEDA MARLENE JIMÉNEZ MONTOYA-133' -> 'ÁGUEDA MARLENE JIMÉNEZ MONTOYA-133 (SCGE)'
+  [NIV4] fila 55: 'ALDANA' -> 'ALDANA (SCGE)'
+  [NIV4] fila 56: 'ALDANA' -> 'ALDANA (SCGE)'
+  [NIV4] fila 57: 'ALDANA' -> 'ALDANA (SCGE)'
+  [NIV4] fila 58: 'ALDANA' -> 'ALDANA (SCGE)'
+  [NIV4] fila 59: 'ALDANA' -> 'ALDANA (SCGE)'
+  [NIV4] fila 111: 'ALL SEASONS COMPANY SA DE CV -100' -> 'ALL SEASONS COMPANY SA DE CV -100 (SCGE)'
+  [NIV4] fila 112: 'ALL SEASONS COMPANY SA DE CV -100' -> 'ALL SEASONS COMPANY SA DE CV -100 (SCGE)'
+  [NIV4] fila 113: 'ALL SEASONS COMPANY SA DE CV -100' -> 'ALL SEASONS COMPANY SA DE CV -100 (SCGE)'
+  [NIV4] fila 137: 'ARDENS ELEVEN -131' -> 'ARDENS ELEVEN -131 (SCGE)'
+  [NIV4] fila 138: 'ARDENS ELEVEN -131' -> 'ARDENS ELEVEN -131 (SCGE)'
+  [NIV4] fila 139: 'ARIANA PATRICIA VALLADARES ZUNIGA-114' -> 'ARIANA PATRICIA VALLADARES ZUNIGA-114 (SCGE)'
+  [NIV4] fila 140: 'ARIDRA JEWERLY-112' -> 'ARIDRA JEWERLY-112 (SCGE)'
+  [NIV4] fila 142: 'ARTES ZAFIRO (ARTE FUNERARIO)-103' -> 'ARTES ZAFIRO (ARTE FUNERARIO)-103 (SCGE)'
+  [NIV4] fila 143: 'ARTES ZAFIRO (ARTE FUNERARIO)-103' -> 'ARTES ZAFIRO (ARTE FUNERARIO)-103 (SCGE)'
+  [NIV4] fila 144: 'ARTES ZAFIRO (ARTE FUNERARIO)-103' -> 'ARTES ZAFIRO (ARTE FUNERARIO)-103 (SCGE)'
+  [NIV4] fila 157: 'AURA'S SHOP-100' -> 'AURA'S SHOP-100 (SCGE)'
+  [NIV4] fila 158: 'AURA'S SHOP-100' -> 'AURA'S SHOP-100 (SCGE)'
+  [NIV4] fila 159: 'AURA'S SHOP-100' -> 'AURA'S SHOP-100 (SCGE)'
+  [NIV4] fila 160: 'AURA'S SHOP-100' -> 'AURA'S SHOP-100 (SCGE)'
+  [NIV4] fila 161: 'AURA'S SHOP-100' -> 'AURA'S SHOP-100 (SCGE)'
+  FALTA  fila 162: 'AUREA BOUTIQUE-133'
+         Niv1: nombre exacto 'aureaboutique133' no en índice
+         Niv2: sin alias en hoja TIENDAS
+         Niv3: 'aureaboutique133' no en caché col E
+         Niv4: sin_tipo 'aureaboutique133' no coincide
+         Niv5: sin coincidencia por palabras clave
+         ¿Quisiste decir? AUREA BOUTIQUE-133 (SCGE)}.xlsx
+  FALTA  fila 163: 'AUREA BOUTIQUE-133'
+         Niv1: nombre exacto 'aureaboutique133' no en índice
+         Niv2: sin alias en hoja TIENDAS
+         Niv3: 'aureaboutique133' no en caché col E
+         Niv4: sin_tipo 'aureaboutique133' no coincide
+         Niv5: sin coincidencia por palabras clave
+         ¿Quisiste decir? AUREA BOUTIQUE-133 (SCGE)}.xlsx
+  FALTA  fila 164: 'AUREA BOUTIQUE-133'
+         Niv1: nombre exacto 'aureaboutique133' no en índice
+         Niv2: sin alias en hoja TIENDAS
+         Niv3: 'aureaboutique133' no en caché col E
+         Niv4: sin_tipo 'aureaboutique133' no coincide
+         Niv5: sin coincidencia por palabras clave
+         ¿Quisiste decir? AUREA BOUTIQUE-133 (SCGE)}.xlsx
+  [NIV4] fila 168: 'BASIKO HOGAR -131' -> 'BASIKO HOGAR -131 (SCGE)'
+  [NIV4] fila 169: 'BAZAR MG-103' -> 'BAZAR MG-103 (SCGE)'
+  [NIV4] fila 170: 'BAZAR MG-103' -> 'BAZAR MG-103 (SCGE)'
+  [NIV4] fila 171: 'BAZAR MG-103' -> 'BAZAR MG-103 (SCGE)'
+  [NIV4] fila 172: 'BAZAR MG-103' -> 'BAZAR MG-103 (SCGE)'
+  [NIV4] fila 173: 'BAZAR MG-103' -> 'BAZAR MG-103 (SCGE)'
+  [NIV4] fila 174: 'BAZAR MG-103' -> 'BAZAR MG-103 (SCGE)'
+  [NIV4] fila 175: 'BAZAR MG-103' -> 'BAZAR MG-103 (SCGE)'
+  [NIV4] fila 176: 'BAZAR MG-103' -> 'BAZAR MG-103 (SCGE)'
+  [NIV4] fila 177: 'BAZAR MG-103' -> 'BAZAR MG-103 (SCGE)'
+  [NIV4] fila 178: 'BAZAR MG-103' -> 'BAZAR MG-103 (SCGE)'
+  [NIV4] fila 180: 'BELLA BOUTIQUE-103' -> 'BELLA BOUTIQUE-103 (SCGE)'
+  [NIV4] fila 181: 'BELLA BOUTIQUE-103' -> 'BELLA BOUTIQUE-103 (SCGE)'
+  FALTA  fila 182: 'BELLEZA CON KATHERINE-102'
+         Niv1: nombre exacto 'bellezaconkatherine102' no en índice
+         Niv2: sin alias en hoja TIENDAS
+         Niv3: 'bellezaconkatherine102' no en caché col E
+         Niv4: sin_tipo 'bellezaconkatherine102' no coincide
+         Niv5: sin coincidencia por palabras clave
+  [NIV4] fila 183: 'BELLEZA MULTIMARCA SV-106' -> 'BELLEZA MULTIMARCA SV-106 (SCGE)'
+  [NIV4] fila 184: 'BELLEZA MULTIMARCA/LOCKERS-106' -> 'BELLEZA MULTIMARCA-LOCKERS-106 (SCGE)'
+  [NIV4] fila 185: 'BERAKHAH SV-112' -> 'BERAKHAH SV-112 (SCGE)'
+  [NIV4] fila 186: 'BERAKHAH SV-112' -> 'BERAKHAH SV-112 (SCGE)'
+  [NIV4] fila 187: 'BERAKHAH SV-112' -> 'BERAKHAH SV-112 (SCGE)'
+  [NIV4] fila 188: 'BERAKHAH SV-112' -> 'BERAKHAH SV-112 (SCGE)'
+  [NIV4] fila 189: 'BIBLIAS Y MÁS EL SALVADOR-106' -> 'BIBLIAS Y MÁS EL SALVADOR-106 (SCGE)'
+  [NIV4] fila 190: 'BIBLIAS Y MÁS EL SALVADOR-106' -> 'BIBLIAS Y MÁS EL SALVADOR-106 (SCGE)'
+  [NIV4] fila 195: 'BIOCARIBE SV-112' -> 'BIOCARIBE SV-112 (SCGE)'
+  [NIV4] fila 196: 'BIOCARIBE SV-112' -> 'BIOCARIBE SV-112 (SCGE)'
+  [NIV4] fila 197: 'BIOCARIBE SV-112' -> 'BIOCARIBE SV-112 (SCGE)'
+  [NIV4] fila 198: 'BIOCARIBE SV-112' -> 'BIOCARIBE SV-112 (SCGE)'
+  [NIV4] fila 199: 'BIOCARIBE SV-112' -> 'BIOCARIBE SV-112 (SCGE)'
+  [NIV4] fila 200: 'BIOCARIBE SV-112' -> 'BIOCARIBE SV-112 (SCGE)'
+  [NIV4] fila 201: 'BIOCARIBE SV-112' -> 'BIOCARIBE SV-112 (SCGE)'
+  [NIV4] fila 202: 'BIOCARIBE SV-112' -> 'BIOCARIBE SV-112 (SCGE)'
+  [NIV4] fila 203: 'BLOSSOM SKIN CARE-DR.RASHEL-103' -> 'BLOSSOM SKIN CARE-DR.RASHEL-103 (SCGE)'
+  [NIV4] fila 204: 'BLOSSOM SKIN CARE-DR.RASHEL-103' -> 'BLOSSOM SKIN CARE-DR.RASHEL-103 (SCGE)'
+  [NIV4] fila 205: 'BLOSSOM SKIN CARE-DR.RASHEL-103' -> 'BLOSSOM SKIN CARE-DR.RASHEL-103 (SCGE)'
+  [NIV4] fila 206: 'BLOSSOM SKIN CARE-DR.RASHEL-103' -> 'BLOSSOM SKIN CARE-DR.RASHEL-103 (SCGE)'
+  [NIV4] fila 207: 'BLOSSOM SKIN CARE-DR.RASHEL-103' -> 'BLOSSOM SKIN CARE-DR.RASHEL-103 (SCGE)'
+  [NIV4] fila 208: 'BLOSSOM SKIN CARE-DR.RASHEL-103' -> 'BLOSSOM SKIN CARE-DR.RASHEL-103 (SCGE)'
+  [NIV4] fila 209: 'BLOSSOM SKIN CARE-DR.RASHEL-103' -> 'BLOSSOM SKIN CARE-DR.RASHEL-103 (SCGE)'
+  [NIV4] fila 210: 'BLOSSOM SKIN CARE-DR.RASHEL-103' -> 'BLOSSOM SKIN CARE-DR.RASHEL-103 (SCGE)'
+  [NIV4] fila 211: 'BLOSSOM SKIN CARE-DR.RASHEL-103' -> 'BLOSSOM SKIN CARE-DR.RASHEL-103 (SCGE)'
+  [NIV4] fila 212: 'BLOSSOM SKIN CARE-DR.RASHEL-103' -> 'BLOSSOM SKIN CARE-DR.RASHEL-103 (SCGE)'
+  [NIV4] fila 213: 'BLOSSOM SKIN CARE-DR.RASHEL-103' -> 'BLOSSOM SKIN CARE-DR.RASHEL-103 (SCGE)'
+  [NIV4] fila 214: 'BLOSSOM SKIN CARE-DR.RASHEL-103' -> 'BLOSSOM SKIN CARE-DR.RASHEL-103 (SCGE)'
+  [NIV4] fila 215: 'BLOSSOM SKIN CARE-DR.RASHEL-103' -> 'BLOSSOM SKIN CARE-DR.RASHEL-103 (SCGE)'
+  [NIV4] fila 216: 'BLOSSOM SKIN CARE-DR.RASHEL-103' -> 'BLOSSOM SKIN CARE-DR.RASHEL-103 (SCGE)'
+  FALTA  fila 217: 'BLOSSOM SKIN CARE-DR.RASHEL-LOCKERS-103'
+         Niv1: nombre exacto 'blossomskincaredrrashellockers103' no en índice
+         Niv2: sin alias en hoja TIENDAS
+         Niv3: 'blossomskincaredrrashellockers103' no en caché col E
+         Niv4: sin_tipo 'blossomskincaredrrashellockers103' no coincide
+         Niv5: sin coincidencia por palabras clave
+  [NIV4] fila 224: 'BOOST MALE-100' -> 'BOOST MALE-100 (SCGE)'
+  [NIV4] fila 225: 'BOOST MALE-100' -> 'BOOST MALE-100 (SCGE)'
+  [NIV4] fila 226: 'BOSTEN S.A DE C.V-119' -> 'BOSTEN S.A DE C.V-119 (SCGE)'
+  [NIV4] fila 227: 'BOSTEN S.A DE C.V-119' -> 'BOSTEN S.A DE C.V-119 (SCGE)'
+  [NIV4] fila 237: 'CALZADO DE DAMA SW-100' -> 'CALZADO DE DAMA SW-100 (SCGE)'
+  [NIV4] fila 238: 'CALZADO DE DAMA SW-100' -> 'CALZADO DE DAMA SW-100 (SCGE)'
+  [NIV4] fila 239: 'CALZADO DE DAMA SW-100' -> 'CALZADO DE DAMA SW-100 (SCGE)'
+  [NIV4] fila 240: 'CALZADO DE DAMA SW-100' -> 'CALZADO DE DAMA SW-100 (SCGE)'
+  [NIV4] fila 241: 'CALZADO DE DAMA SW-100' -> 'CALZADO DE DAMA SW-100 (SCGE)'
+  [NIV4] fila 242: 'CALZADO DE DAMA SW-100' -> 'CALZADO DE DAMA SW-100 (SCGE)'
+  [NIV4] fila 243: 'CALZADO DE DAMA SW-100' -> 'CALZADO DE DAMA SW-100 (SCGE)'
+  [NIV4] fila 244: 'CALZADO DE DAMA SW-100' -> 'CALZADO DE DAMA SW-100 (SCGE)'
+  [NIV4] fila 245: 'CALZADO DE DAMA SW-100' -> 'CALZADO DE DAMA SW-100 (SCGE)'
+  [NIV4] fila 246: 'CALZADO DE DAMA SW-100' -> 'CALZADO DE DAMA SW-100 (SCGE)'
+  [NIV4] fila 247: 'CALZADO DE DAMA SW-100' -> 'CALZADO DE DAMA SW-100 (SCGE)'
+  [NIV4] fila 248: 'CALZADO DE DAMA SW-100' -> 'CALZADO DE DAMA SW-100 (SCGE)'
+  [NIV4] fila 249: 'CALZADO DE DAMA SW-100' -> 'CALZADO DE DAMA SW-100 (SCGE)'
+  [NIV4] fila 250: 'CALZADO DE DAMA SW-100' -> 'CALZADO DE DAMA SW-100 (SCGE)'
+  [NIV4] fila 251: 'CALZADO DE DAMA SW-100' -> 'CALZADO DE DAMA SW-100 (SCGE)'
+  [NIV4] fila 252: 'CALZADO DE DAMA SW-100' -> 'CALZADO DE DAMA SW-100 (SCGE)'
+  [NIV4] fila 253: 'CALZADO DE DAMA SW-100' -> 'CALZADO DE DAMA SW-100 (SCGE)'
+  [NIV4] fila 254: 'CALZADO DE DAMA SW-100' -> 'CALZADO DE DAMA SW-100 (SCGE)'
+  [NIV4] fila 255: 'CALZADO DE DAMA SW-100' -> 'CALZADO DE DAMA SW-100 (SCGE)'
+  [NIV4] fila 256: 'CALZADO DE DAMA SW-100' -> 'CALZADO DE DAMA SW-100 (SCGE)'
+  [NIV4] fila 257: 'CALZADO DE DAMA SW-100' -> 'CALZADO DE DAMA SW-100 (SCGE)'
+  [NIV4] fila 258: 'CALZADO DE DAMA SW-100' -> 'CALZADO DE DAMA SW-100 (SCGE)'
+  [NIV4] fila 259: 'CALZADO DE DAMA SW-100' -> 'CALZADO DE DAMA SW-100 (SCGE)'
+  [NIV4] fila 260: 'CALZADO DE DAMA SW-100' -> 'CALZADO DE DAMA SW-100 (SCGE)'
+  [NIV4] fila 261: 'CALZADO DE DAMA SW-100' -> 'CALZADO DE DAMA SW-100 (SCGE)'
+  [NIV4] fila 262: 'CALZADO DE DAMA SW-100' -> 'CALZADO DE DAMA SW-100 (SCGE)'
+  [NIV4] fila 263: 'CALZADO DE DAMA SW-100' -> 'CALZADO DE DAMA SW-100 (SCGE)'
+  [NIV4] fila 264: 'CALZADO DE DAMA SW-100' -> 'CALZADO DE DAMA SW-100 (SCGE)'
+  [NIV4] fila 265: 'CALZADO DE DAMA SW-100' -> 'CALZADO DE DAMA SW-100 (SCGE)'
+  [NIV4] fila 266: 'CALZADO DE DAMA SW-100' -> 'CALZADO DE DAMA SW-100 (SCGE)'
+  [NIV4] fila 267: 'CALZADO DE DAMA SW-100' -> 'CALZADO DE DAMA SW-100 (SCGE)'
+  [NIV4] fila 268: 'CALZADO DE DAMA SW-100' -> 'CALZADO DE DAMA SW-100 (SCGE)'
+  [NIV4] fila 269: 'CALZADO DE DAMA SW-100' -> 'CALZADO DE DAMA SW-100 (SCGE)'
+  [NIV4] fila 270: 'CALZADO DE DAMA SW-100' -> 'CALZADO DE DAMA SW-100 (SCGE)'
+  [NIV4] fila 271: 'CALZADO DE DAMA SW-100' -> 'CALZADO DE DAMA SW-100 (SCGE)'
+  [NIV4] fila 272: 'CALZADO DE DAMA SW-100' -> 'CALZADO DE DAMA SW-100 (SCGE)'
+  [NIV4] fila 273: 'CALZADO DE DAMA SW-100' -> 'CALZADO DE DAMA SW-100 (SCGE)'
+  [NIV4] fila 274: 'CALZADO DE DAMA SW-100' -> 'CALZADO DE DAMA SW-100 (SCGE)'
+  [NIV4] fila 275: 'CALZADO DE DAMA SW-100' -> 'CALZADO DE DAMA SW-100 (SCGE)'
+  [NIV4] fila 276: 'CALZADO DE DAMA SW-100' -> 'CALZADO DE DAMA SW-100 (SCGE)'
+  [NIV4] fila 277: 'CALZADO DE DAMA SW-100' -> 'CALZADO DE DAMA SW-100 (SCGE)'
+  [NIV4] fila 278: 'CALZADO DE DAMA SW-100' -> 'CALZADO DE DAMA SW-100 (SCGE)'
+  [NIV4] fila 279: 'CALZADO DE DAMA SW-100' -> 'CALZADO DE DAMA SW-100 (SCGE)'
+  [NIV4] fila 280: 'CALZADO DE DAMA SW-100' -> 'CALZADO DE DAMA SW-100 (SCGE)'
+  [NIV4] fila 281: 'CALZADO DE DAMA SW-100' -> 'CALZADO DE DAMA SW-100 (SCGE)'
+  [NIV4] fila 282: 'CALZADO DE DAMA SW-100' -> 'CALZADO DE DAMA SW-100 (SCGE)'
+  [NIV4] fila 283: 'CALZADO DE DAMA SW-100' -> 'CALZADO DE DAMA SW-100 (SCGE)'
+  [NIV4] fila 284: 'CALZADO DE DAMA SW-100' -> 'CALZADO DE DAMA SW-100 (SCGE)'
+  [NIV4] fila 285: 'CALZADO DE DAMA SW-100' -> 'CALZADO DE DAMA SW-100 (SCGE)'
+  [NIV4] fila 286: 'CALZADO DE DAMA SW-100' -> 'CALZADO DE DAMA SW-100 (SCGE)'
+  [NIV4] fila 287: 'CALZADO DE DAMA SW-100' -> 'CALZADO DE DAMA SW-100 (SCGE)'
+  [NIV4] fila 288: 'CALZADO DE DAMA SW-100' -> 'CALZADO DE DAMA SW-100 (SCGE)'
+  [NIV4] fila 289: 'CALZADO DE DAMA SW-100' -> 'CALZADO DE DAMA SW-100 (SCGE)'
+  [NIV4] fila 290: 'CALZADO DE DAMA SW-100' -> 'CALZADO DE DAMA SW-100 (SCGE)'
+  [NIV4] fila 291: 'CALZADO DE DAMA SW-100' -> 'CALZADO DE DAMA SW-100 (SCGE)'
+  [NIV4] fila 292: 'CALZADO DE DAMA SW-100' -> 'CALZADO DE DAMA SW-100 (SCGE)'
+  [NIV4] fila 293: 'CALZADO DE DAMA SW-100' -> 'CALZADO DE DAMA SW-100 (SCGE)'
+  [NIV4] fila 294: 'CALZADO DE DAMA SW-100' -> 'CALZADO DE DAMA SW-100 (SCGE)'
+  [NIV4] fila 295: 'CALZADO DE DAMA SW-100' -> 'CALZADO DE DAMA SW-100 (SCGE)'
+  [NIV4] fila 296: 'CALZADO DE DAMA SW-100' -> 'CALZADO DE DAMA SW-100 (SCGE)'
+  [NIV4] fila 297: 'CALZADO DE DAMA SW-100' -> 'CALZADO DE DAMA SW-100 (SCGE)'
+  [NIV4] fila 298: 'CALZADO DE DAMA SW-100' -> 'CALZADO DE DAMA SW-100 (SCGE)'
+  [NIV4] fila 299: 'CALZADO DE DAMA SW-100' -> 'CALZADO DE DAMA SW-100 (SCGE)'
+  [NIV4] fila 300: 'CALZADO DE DAMA SW-100' -> 'CALZADO DE DAMA SW-100 (SCGE)'
+  [NIV4] fila 301: 'CALZADO DE DAMA SW-100' -> 'CALZADO DE DAMA SW-100 (SCGE)'
+  [NIV4] fila 302: 'CALZADO DE DAMA SW-100' -> 'CALZADO DE DAMA SW-100 (SCGE)'
+  [NIV4] fila 303: 'CALZADO DE DAMA SW-100' -> 'CALZADO DE DAMA SW-100 (SCGE)'
+  [NIV4] fila 304: 'CALZADO DE DAMA SW-100' -> 'CALZADO DE DAMA SW-100 (SCGE)'
+  [NIV4] fila 305: 'CAMPING EL SALVADOR-102' -> 'CAMPING EL SALVADOR-102 (SCGE)'
+  FALTA  fila 308: 'CANELA HOGAR SV-116'
+         Niv1: nombre exacto 'canelahogarsv116' no en índice
+         Niv2: sin alias en hoja TIENDAS
+         Niv3: 'canelahogarsv116' no en caché col E
+         Niv4: sin_tipo 'canelahogarsv116' no coincide
+         Niv5: sin coincidencia por palabras clave
+         ¿Quisiste decir? CANELA HOGAR SV-116 (BONNY HOGAR SY-108).xlsx
+  FALTA  fila 309: 'CANELA HOGAR SV-116'
+         Niv1: nombre exacto 'canelahogarsv116' no en índice
+         Niv2: sin alias en hoja TIENDAS
+         Niv3: 'canelahogarsv116' no en caché col E
+         Niv4: sin_tipo 'canelahogarsv116' no coincide
+         Niv5: sin coincidencia por palabras clave
+         ¿Quisiste decir? CANELA HOGAR SV-116 (BONNY HOGAR SY-108).xlsx
+  FALTA  fila 310: 'CANELA HOGAR SV-116'
+         Niv1: nombre exacto 'canelahogarsv116' no en índice
+         Niv2: sin alias en hoja TIENDAS
+         Niv3: 'canelahogarsv116' no en caché col E
+         Niv4: sin_tipo 'canelahogarsv116' no coincide
+         Niv5: sin coincidencia por palabras clave
+         ¿Quisiste decir? CANELA HOGAR SV-116 (BONNY HOGAR SY-108).xlsx
+  FALTA  fila 311: 'CANELA HOGAR SV-116'
+         Niv1: nombre exacto 'canelahogarsv116' no en índice
+         Niv2: sin alias en hoja TIENDAS
+         Niv3: 'canelahogarsv116' no en caché col E
+         Niv4: sin_tipo 'canelahogarsv116' no coincide
+         Niv5: sin coincidencia por palabras clave
+         ¿Quisiste decir? CANELA HOGAR SV-116 (BONNY HOGAR SY-108).xlsx
+  [NIV4] fila 328: 'CARPINTERÍA CAMPOS-132' -> 'CARPINTERÍA CAMPOS-132 (SCGE)'
+  [NIV4] fila 329: 'CARPINTERÍA CAMPOS-132' -> 'CARPINTERÍA CAMPOS-132 (SCGE)'
+  [NIV4] fila 332: 'CASTRO ARTESANIA Y VARIEDADES' -> 'CASTRO ARTESANIA Y VARIEDADES (SCGE)'
+  [NIV4] fila 333: 'CASTRO ARTESANIA Y VARIEDADES' -> 'CASTRO ARTESANIA Y VARIEDADES (SCGE)'
+  [NIV4] fila 353: 'CHEMIS DTF-113' -> 'CHEMIS DTF-113 (SCGE)'
+  [NIV4] fila 360: 'CHERO CARTAS Y COLECCIONABLES2-105' -> 'CHERO CARTAS Y COLECCIONABLES2-105 (SCGE)'
+  [NIV4] fila 361: 'CHERO CARTAS Y COLECCIONABLES2-105' -> 'CHERO CARTAS Y COLECCIONABLES2-105 (SCGE)'
+  [NIV4] fila 362: 'CHERO CARTAS Y COLECCIONABLES2-105' -> 'CHERO CARTAS Y COLECCIONABLES2-105 (SCGE)'
+  [NIV4] fila 363: 'CHILENAPOLEON-114' -> 'CHILENAPOLEON-114 (SCGE)'
+  [NIV4] fila 370: 'COMERCIAL DOG TREAT BAG-133' -> 'COMERCIAL DOG TREAT BAG-133 (SCGE)'
+  [NIV4] fila 371: 'COMERCIAL GETSEMANI-116' -> 'COMERCIAL GETSEMANI-116 (SCGE)'
+  [NIV4] fila 372: 'CONFECCIONES NUNFIO-117' -> 'CONFECCIONES NUNFIO-117 (SCGE)'
+  [NIV4] fila 373: 'CONFECCIONES NUNFIO-117' -> 'CONFECCIONES NUNFIO-117 (SCGE)'
+  [NIV4] fila 375: 'CREACIONES NÁPOLES-123' -> 'CREACIONES NAPOLES-123 (SCGE)'
+  [NIV4] fila 376: 'CREACIONES NÁPOLES-123' -> 'CREACIONES NAPOLES-123 (SCGE)'
+  [NIV4] fila 377: 'CREACIONES NÁPOLES-123' -> 'CREACIONES NAPOLES-123 (SCGE)'
+  [NIV4] fila 378: 'DAGOBERTO VASQUEZ-101' -> 'DAGOBERTO VASQUEZ-101 (SCGE)'
+  [NIV4] fila 384: 'DAZZLE-110' -> 'DAZZLE-110 (SCGE)'
+  [NIV4] fila 386: 'DEAL-124' -> 'DEAL-124 (SCGE)'
+  [NIV4] fila 387: 'DEAL-124' -> 'DEAL-124 (SCGE)'
+  [NIV4] fila 393: 'DECOR ADELFAS-101' -> 'DECOR ADELFAS-101 (SCGE)'
+  [NIV4] fila 394: 'DECOR ADELFAS-101' -> 'DECOR ADELFAS-101 (SCGE)'
+  [NIV4] fila 395: 'DECOR ADELFAS-101' -> 'DECOR ADELFAS-101 (SCGE)'
+  [NIV4] fila 396: 'DECOR ADELFAS-101' -> 'DECOR ADELFAS-101 (SCGE)'
+  [NIV4] fila 431: 'DETALLE BOUTIQUE-133' -> 'DETALLE BOUTIQUE-133 (SCGE)'
+  [NIV4] fila 432: 'DETALLE BOUTIQUE-133' -> 'DETALLE BOUTIQUE-133 (SCGE)'
+  [NIV4] fila 433: 'DIGADGETS-113' -> 'DIGADGETS-113 (SCGE)'
+  [NIV4] fila 434: 'DIPLO-102' -> 'DIPLO-102 (SCGE)'
+  [NIV4] fila 435: 'DIPLO-102' -> 'DIPLO-102 (SCGE)'
+  [NIV4] fila 436: 'DIPLO-102' -> 'DIPLO-102 (SCGE)'
+  [NIV4] fila 437: 'DIPLO-102' -> 'DIPLO-102 (SCGE)'
+  [NIV4] fila 438: 'DIPLO-102' -> 'DIPLO-102 (SCGE)'
+  [NIV4] fila 439: 'DISAFE S.A. DE C.V-102' -> 'DISAFE S.A. DE C.V-102 (SCGE)'
+  [NIV4] fila 440: 'DISAFE S.A. DE C.V-102' -> 'DISAFE S.A. DE C.V-102 (SCGE)'
+  [NIV4] fila 441: 'DISTRIBUIDORA DELMY SRL-105' -> 'DISTRIBUIDORA DELMY SRL-105 (SCGE)'
+  [NIV4] fila 442: 'DISTRIBUIDORA DELMY SRL-105' -> 'DISTRIBUIDORA DELMY SRL-105 (SCGE)'
+  [NIV4] fila 443: 'DISTRIBUIDORA DELMY SRL-105' -> 'DISTRIBUIDORA DELMY SRL-105 (SCGE)'
+  [NIV4] fila 444: 'DISTRIBUIDORA DELMY SRL-105' -> 'DISTRIBUIDORA DELMY SRL-105 (SCGE)'
+  [NIV4] fila 445: 'DISTRIBUIDORA DELMY SRL-105' -> 'DISTRIBUIDORA DELMY SRL-105 (SCGE)'
+  [NIV4] fila 446: 'DISTRIBUIDORA EBEN-EZER -107' -> 'DISTRIBUIDORA EBEN-EZER -107 (SCGE)'
+  [NIV4] fila 447: 'DISTRIBUIDORA EBEN-EZER -107' -> 'DISTRIBUIDORA EBEN-EZER -107 (SCGE)'
+  [NIV4] fila 448: 'DISTRIBUIDORA EBEN-EZER -107' -> 'DISTRIBUIDORA EBEN-EZER -107 (SCGE)'
+  [NIV4] fila 449: 'DISTRIBUIDORA EBEN-EZER -107' -> 'DISTRIBUIDORA EBEN-EZER -107 (SCGE)'
+  [NIV4] fila 450: 'DISTRIBUIDORA EM503-133' -> 'DISTRIBUIDORA EM503-133 (SCGE)'
+  [NIV4] fila 451: 'DISTRIBUIDORA EM503-133' -> 'DISTRIBUIDORA EM503-133 (SCGE)'
+  [NIV4] fila 452: 'DISTRIBUIDORA EM503-133' -> 'DISTRIBUIDORA EM503-133 (SCGE)'
+  [NIV4] fila 453: 'DISTRIBUIDORA EM503-133' -> 'DISTRIBUIDORA EM503-133 (SCGE)'
+  [NIV4] fila 454: 'DISTRIBUIDORA EM503-LOCKERS-117' -> 'DISTRIBUIDORA EM503-LOCKERS-117 (SCGE)'
+  [NIV4] fila 481: 'DISTRIBUIDORA LOLY-125' -> 'DISTRIBUIDORA LOLY-125 (SCGE)'
+  [NIV4] fila 482: 'DISTRIBUIDORA LOLY-125' -> 'DISTRIBUIDORA LOLY-125 (SCGE)'
+  [NIV4] fila 483: 'DISTRIBUIDORA LOLY-125' -> 'DISTRIBUIDORA LOLY-125 (SCGE)'
+  [NIV4] fila 484: 'DISTRIBUIDORA LOLY-125' -> 'DISTRIBUIDORA LOLY-125 (SCGE)'
+  [NIV4] fila 485: 'DISTRIBUIDORA LOLY-125' -> 'DISTRIBUIDORA LOLY-125 (SCGE)'
+  [NIV4] fila 486: 'DISTRIBUIDORA LOLY-125' -> 'DISTRIBUIDORA LOLY-125 (SCGE)'
+  [NIV4] fila 487: 'DISTRIBUIDORA LOLY-125' -> 'DISTRIBUIDORA LOLY-125 (SCGE)'
+  [NIV4] fila 488: 'DISTRIBUIDORA LOLY-125' -> 'DISTRIBUIDORA LOLY-125 (SCGE)'
+  [NIV4] fila 489: 'DISTRIBUIDORA LOLY-125' -> 'DISTRIBUIDORA LOLY-125 (SCGE)'
+  [NIV4] fila 490: 'DISTRIBUIDORA LOLY-125' -> 'DISTRIBUIDORA LOLY-125 (SCGE)'
+  [NIV4] fila 491: 'DISTRIBUIDORA LOLY-125' -> 'DISTRIBUIDORA LOLY-125 (SCGE)'
+  [NIV4] fila 492: 'DISTRIBUIDORA LOLY-125' -> 'DISTRIBUIDORA LOLY-125 (SCGE)'
+  [NIV4] fila 493: 'DISTRIBUIDORA LOLY-125' -> 'DISTRIBUIDORA LOLY-125 (SCGE)'
+  [NIV4] fila 494: 'DISTRIBUIDORA LOLY-125' -> 'DISTRIBUIDORA LOLY-125 (SCGE)'
+  [NIV4] fila 495: 'DISTRIBUIDORA LOLY-125' -> 'DISTRIBUIDORA LOLY-125 (SCGE)'
+  [NIV4] fila 496: 'DISTRIBUIDORA LOLY-125' -> 'DISTRIBUIDORA LOLY-125 (SCGE)'
+  [NIV4] fila 497: 'DISTRIBUIDORA LOLY-125' -> 'DISTRIBUIDORA LOLY-125 (SCGE)'
+  [NIV4] fila 498: 'DISTRIBUIDORA LOLY-125' -> 'DISTRIBUIDORA LOLY-125 (SCGE)'
+  [NIV4] fila 499: 'DISTRIBUIDORA LOLY-125' -> 'DISTRIBUIDORA LOLY-125 (SCGE)'
+  [NIV4] fila 500: 'DISTRIBUIDORA LOLY-125' -> 'DISTRIBUIDORA LOLY-125 (SCGE)'
+  [NIV4] fila 501: 'DISTRIBUIDORA LOLY-125' -> 'DISTRIBUIDORA LOLY-125 (SCGE)'
+  [NIV4] fila 502: 'DISTRIBUIDORA LOLY-125' -> 'DISTRIBUIDORA LOLY-125 (SCGE)'
+  [NIV4] fila 503: 'DISTRIBUIDORA LOLY-125' -> 'DISTRIBUIDORA LOLY-125 (SCGE)'
+  FALTA  fila 504: 'DISTRIBUIDORA NATURELI-100'
+         Niv1: nombre exacto 'distribuidoranatureli100' no en índice
+         Niv2: sin alias en hoja TIENDAS
+         Niv3: 'distribuidoranatureli100' no en caché col E
+         Niv4: sin_tipo 'distribuidoranatureli100' no coincide
+         Niv5: sin coincidencia por palabras clave
+         ¿Quisiste decir? DISTRIBUIDORA NATURELI-100 (LH PERFUMES Y NATURELI-PERFUMES Y KIT SHAMPOOS-100).xlsx
+  FALTA  fila 505: 'DISTRIBUIDORA NATURELI-100'
+         Niv1: nombre exacto 'distribuidoranatureli100' no en índice
+         Niv2: sin alias en hoja TIENDAS
+         Niv3: 'distribuidoranatureli100' no en caché col E
+         Niv4: sin_tipo 'distribuidoranatureli100' no coincide
+         Niv5: sin coincidencia por palabras clave
+         ¿Quisiste decir? DISTRIBUIDORA NATURELI-100 (LH PERFUMES Y NATURELI-PERFUMES Y KIT SHAMPOOS-100).xlsx
+  FALTA  fila 506: 'DISTRIBUIDORA NATURELI-100'
+         Niv1: nombre exacto 'distribuidoranatureli100' no en índice
+         Niv2: sin alias en hoja TIENDAS
+         Niv3: 'distribuidoranatureli100' no en caché col E
+         Niv4: sin_tipo 'distribuidoranatureli100' no coincide
+         Niv5: sin coincidencia por palabras clave
+         ¿Quisiste decir? DISTRIBUIDORA NATURELI-100 (LH PERFUMES Y NATURELI-PERFUMES Y KIT SHAMPOOS-100).xlsx
+  FALTA  fila 507: 'DISTRIBUIDORA NATURELI-100'
+         Niv1: nombre exacto 'distribuidoranatureli100' no en índice
+         Niv2: sin alias en hoja TIENDAS
+         Niv3: 'distribuidoranatureli100' no en caché col E
+         Niv4: sin_tipo 'distribuidoranatureli100' no coincide
+         Niv5: sin coincidencia por palabras clave
+         ¿Quisiste decir? DISTRIBUIDORA NATURELI-100 (LH PERFUMES Y NATURELI-PERFUMES Y KIT SHAMPOOS-100).xlsx
+  FALTA  fila 508: 'DISTRIBUIDORA NATURELI-100'
+         Niv1: nombre exacto 'distribuidoranatureli100' no en índice
+         Niv2: sin alias en hoja TIENDAS
+         Niv3: 'distribuidoranatureli100' no en caché col E
+         Niv4: sin_tipo 'distribuidoranatureli100' no coincide
+         Niv5: sin coincidencia por palabras clave
+         ¿Quisiste decir? DISTRIBUIDORA NATURELI-100 (LH PERFUMES Y NATURELI-PERFUMES Y KIT SHAMPOOS-100).xlsx
+  FALTA  fila 509: 'DISTRIBUIDORA NATURELI-100'
+         Niv1: nombre exacto 'distribuidoranatureli100' no en índice
+         Niv2: sin alias en hoja TIENDAS
+         Niv3: 'distribuidoranatureli100' no en caché col E
+         Niv4: sin_tipo 'distribuidoranatureli100' no coincide
+         Niv5: sin coincidencia por palabras clave
+         ¿Quisiste decir? DISTRIBUIDORA NATURELI-100 (LH PERFUMES Y NATURELI-PERFUMES Y KIT SHAMPOOS-100).xlsx
+  FALTA  fila 510: 'DISTRIBUIDORA NATURELI-100'
+         Niv1: nombre exacto 'distribuidoranatureli100' no en índice
+         Niv2: sin alias en hoja TIENDAS
+         Niv3: 'distribuidoranatureli100' no en caché col E
+         Niv4: sin_tipo 'distribuidoranatureli100' no coincide
+         Niv5: sin coincidencia por palabras clave
+         ¿Quisiste decir? DISTRIBUIDORA NATURELI-100 (LH PERFUMES Y NATURELI-PERFUMES Y KIT SHAMPOOS-100).xlsx
+  FALTA  fila 511: 'DISTRIBUIDORA NATURELI-100'
+         Niv1: nombre exacto 'distribuidoranatureli100' no en índice
+         Niv2: sin alias en hoja TIENDAS
+         Niv3: 'distribuidoranatureli100' no en caché col E
+         Niv4: sin_tipo 'distribuidoranatureli100' no coincide
+         Niv5: sin coincidencia por palabras clave
+         ¿Quisiste decir? DISTRIBUIDORA NATURELI-100 (LH PERFUMES Y NATURELI-PERFUMES Y KIT SHAMPOOS-100).xlsx
+  FALTA  fila 512: 'DISTRIBUIDORA NATURELI-100'
+         Niv1: nombre exacto 'distribuidoranatureli100' no en índice
+         Niv2: sin alias en hoja TIENDAS
+         Niv3: 'distribuidoranatureli100' no en caché col E
+         Niv4: sin_tipo 'distribuidoranatureli100' no coincide
+         Niv5: sin coincidencia por palabras clave
+         ¿Quisiste decir? DISTRIBUIDORA NATURELI-100 (LH PERFUMES Y NATURELI-PERFUMES Y KIT SHAMPOOS-100).xlsx
+  FALTA  fila 513: 'DISTRIBUIDORA NATURELI-100'
+         Niv1: nombre exacto 'distribuidoranatureli100' no en índice
+         Niv2: sin alias en hoja TIENDAS
+         Niv3: 'distribuidoranatureli100' no en caché col E
+         Niv4: sin_tipo 'distribuidoranatureli100' no coincide
+         Niv5: sin coincidencia por palabras clave
+         ¿Quisiste decir? DISTRIBUIDORA NATURELI-100 (LH PERFUMES Y NATURELI-PERFUMES Y KIT SHAMPOOS-100).xlsx
+Clasificadas: 100 tiendas, 483 filas validas, 19 faltas, 8 bloqueadas en 0.29s
+
+  FALTA  fila 162: 'AUREA BOUTIQUE-133'
+  FALTA  fila 163: 'AUREA BOUTIQUE-133'
+  FALTA  fila 164: 'AUREA BOUTIQUE-133'
+  FALTA  fila 182: 'BELLEZA CON KATHERINE-102'
+  FALTA  fila 217: 'BLOSSOM SKIN CARE-DR.RASHEL-LOCKERS-103'
+  FALTA  fila 308: 'CANELA HOGAR SV-116'
+  FALTA  fila 309: 'CANELA HOGAR SV-116'
+  FALTA  fila 310: 'CANELA HOGAR SV-116'
+  FALTA  fila 311: 'CANELA HOGAR SV-116'
+  FALTA  fila 504: 'DISTRIBUIDORA NATURELI-100'
+  FALTA  fila 505: 'DISTRIBUIDORA NATURELI-100'
+  FALTA  fila 506: 'DISTRIBUIDORA NATURELI-100'
+  FALTA  fila 507: 'DISTRIBUIDORA NATURELI-100'
+  FALTA  fila 508: 'DISTRIBUIDORA NATURELI-100'
+  FALTA  fila 509: 'DISTRIBUIDORA NATURELI-100'
+  FALTA  fila 510: 'DISTRIBUIDORA NATURELI-100'
+  FALTA  fila 511: 'DISTRIBUIDORA NATURELI-100'
+  FALTA  fila 512: 'DISTRIBUIDORA NATURELI-100'
+  FALTA  fila 513: 'DISTRIBUIDORA NATURELI-100'
+  Abriendo ABARCA REPUESTOS-110 (SCGE).xlsx...
+  DUP    fila 9: ID 4084674 (ya existe en tienda)
+  DUP    fila 10: ID 4084570 (ya existe en tienda)
+  DUP    fila 11: ID 4084165 (ya existe en tienda)
+  DUP    fila 12: ID 4083996 (ya existe en tienda)
+  Abriendo ABY NAILS - METROGALERIAS.xlsx...
+  DUP    fila 13: ID 4086196 (ya existe en tienda)
+  DUP    fila 14: ID 4086159 (ya existe en tienda)
+  DUP    fila 15: ID 4086109 (ya existe en tienda)
+  Abriendo ABYS FASHION-METROGALERIAS.xlsx...
+  LISTO  fila 16
+  LISTO  fila 17
+  LISTO  fila 18
+  LISTO  fila 19
+  LISTO  fila 20
+  LISTO  fila 21
+  Abriendo ACCESORIOS JS-116 (SCGE).xlsx...
+  DUP    fila 22: ID 4081824 (ya existe en tienda)
+  Abriendo ACCESORIOS TEJADA-124 (SCGE).xlsx...
+  DUP    fila 23: ID 4084203 (ya existe en tienda)
+  Abriendo ACCESORIOS ZALDAÑA-119 (SCGE).xlsx...
+  DUP    fila 24: ID 4082862 (ya existe en tienda)
+  Abriendo ACCESORIZATE SV-133 (SCGE).xlsx...
+  LISTO  fila 25
+  Abriendo ACVDO SV - METROGALERIAS.xlsx...
+  DUP    fila 26: ID 4088676 (ya existe en tienda)
+  DUP    fila 27: ID 4088664 (ya existe en tienda)
+  DUP    fila 28: ID 4088630 (ya existe en tienda)
+  Abriendo ADVANCED STORE-126 (SCGE).xlsx...
+  DUP    fila 29: ID 4084974 (ya existe en tienda)
+  DUP    fila 30: ID 4084818 (ya existe en tienda)
+  DUP    fila 31: ID 4082452 (ya existe en tienda)
+  DUP    fila 32: ID 4082438 (ya existe en tienda)
+  DUP    fila 33: ID 4082409 (ya existe en tienda)
+  DUP    fila 34: ID 4082366 (ya existe en tienda)
+  Abriendo AE STORE -106.xlsx...
+  DUP    fila 35: ID 4087922 (ya existe en tienda)
+  DUP    fila 36: ID 4087861 (ya existe en tienda)
+  [10/100] tiendas procesadas...
+  Abriendo AFRODITA BOUTIQUE-119.xlsx...
+  DUP    fila 37: ID 4084137 (ya existe en tienda)
+  DUP    fila 38: ID 4084064 (ya existe en tienda)
+  Abriendo AG SHOP ONLINE - 116 (SCGE).xlsx...
+  DUP    fila 39: ID 4083930 (ya existe en tienda)
+  DUP    fila 40: ID 4083701 (ya existe en tienda)
+  DUP    fila 41: ID 4083591 (ya existe en tienda)
+  Abriendo AGATAS ACCESORIOS-116 (SCGE).xlsx...
+  LISTO  fila 42
+  LISTO  fila 43
+  LISTO  fila 44
+  LISTO  fila 45
+  LISTO  fila 46
+  Abriendo ÁGUEDA MARLENE JIMÉNEZ MONTOYA-133 (SCGE).xlsx...
+  DUP    fila 50: ID 4081089 (ya existe en tienda)
+  Abriendo AL CHILAZO ONLINE  SS-133.xlsx...
+  DUP    fila 51: ID 4084247 (ya existe en tienda)
+  DUP    fila 52: ID 4083549 (ya existe en tienda)
+  DUP    fila 53: ID 4082969 (ya existe en tienda)
+  DUP    fila 54: ID 4082857 (ya existe en tienda)
+  Abriendo ALDANA (SCGE).xlsx...
+[WARN] 'ALDANA (SCGE).xlsx' — ninguna hoja visible con encabezados válidos.
+  FALTA  hoja invalida: 'ALDANA (SCGE).xlsx'
+  Abriendo ALEJANDRAS STORE-113.xlsx...
+  DUP    fila 60: ID 4079757 (ya existe en tienda)
+  Abriendo ALEU SV-118.xlsx...
+  DUP    fila 61: ID 4080609 (ya existe en tienda)
+  Abriendo ALEX ARGUETA - METROGALERIAS.xlsx...
+  DUP    fila 62: ID 4087621 (ya existe en tienda)
+  DUP    fila 63: ID 4087544 (ya existe en tienda)
+  DUP    fila 64: ID 4089167 (ya existe en tienda)
+  Abriendo ALI ALI TECNOLOGÍA  - METROGALERIAS.xlsx...
+  DUP    fila 65: ID 4086545 (ya existe en tienda)
+  DUP    fila 66: ID 4086418 (ya existe en tienda)
+  DUP    fila 67: ID 4086379 (ya existe en tienda)
+  DUP    fila 68: ID 4086360 (ya existe en tienda)
+  DUP    fila 69: ID 4086342 (ya existe en tienda)
+  DUP    fila 70: ID 4086288 (ya existe en tienda)
+  DUP    fila 71: ID 4086261 (ya existe en tienda)
+  DUP    fila 72: ID 4086158 (ya existe en tienda)
+  DUP    fila 73: ID 4086110 (ya existe en tienda)
+  DUP    fila 74: ID 4086096 (ya existe en tienda)
+  DUP    fila 75: ID 4086018 (ya existe en tienda)
+  DUP    fila 76: ID 4085843 (ya existe en tienda)
+  DUP    fila 77: ID 4085805 (ya existe en tienda)
+  DUP    fila 78: ID 4085795 (ya existe en tienda)
+  DUP    fila 79: ID 4085779 (ya existe en tienda)
+  DUP    fila 80: ID 4085769 (ya existe en tienda)
+  DUP    fila 81: ID 4085745 (ya existe en tienda)
+  DUP    fila 82: ID 4085730 (ya existe en tienda)
+  DUP    fila 83: ID 4085698 (ya existe en tienda)
+  DUP    fila 84: ID 4085669 (PAQ pero ID ya existe (no fragmentar))
+  DUP    fila 85: ID 4085605 (ya existe en tienda)
+  DUP    fila 86: ID 4085581 (ya existe en tienda)
+  DUP    fila 87: ID 4085565 (ya existe en tienda)
+  DUP    fila 88: ID 4085537 (ya existe en tienda)
+  DUP    fila 89: ID 4085513 (ya existe en tienda)
+  DUP    fila 90: ID 4085492 (ya existe en tienda)
+  DUP    fila 91: ID 4085471 (ya existe en tienda)
+  DUP    fila 92: ID 4085454 (ya existe en tienda)
+  DUP    fila 93: ID 4085417 (ya existe en tienda)
+  DUP    fila 94: ID 4085337 (ya existe en tienda)
+  DUP    fila 95: ID 4085296 (ya existe en tienda)
+  DUP    fila 96: ID 4085127 (ya existe en tienda)
+  DUP    fila 97: ID 4085108 (ya existe en tienda)
+  DUP    fila 98: ID 4085072 (PAQ pero ID ya existe (no fragmentar))
+  DUP    fila 99: ID 4085026 (ya existe en tienda)
+  DUP    fila 100: ID 4084997 (ya existe en tienda)
+  DUP    fila 101: ID 4084941 (ya existe en tienda)
+  DUP    fila 102: ID 4084900 (ya existe en tienda)
+  DUP    fila 103: ID 4084804 (ya existe en tienda)
+  DUP    fila 104: ID 4084768 (ya existe en tienda)
+  DUP    fila 105: ID 4084697 (ya existe en tienda)
+  DUP    fila 106: ID 4084642 (ya existe en tienda)
+  DUP    fila 107: ID 4084560 (ya existe en tienda)
+  DUP    fila 108: ID 4084495 (ya existe en tienda)
+  DUP    fila 109: ID 4084443 (ya existe en tienda)
+  DUP    fila 110: ID 4084407 (ya existe en tienda)
+  [20/100] tiendas procesadas...
+  Abriendo ALL SEASONS COMPANY SA DE CV -100 (SCGE).xlsx...
+  DUP    fila 111: ID 4086518 (ya existe en tienda)
+  DUP    fila 112: ID 4082559 (ya existe en tienda)
+  DUP    fila 113: ID 4082397 (ya existe en tienda)
+  Abriendo AMAZING (S)-106.xlsx...
+  DUP    fila 114: ID 4087250 (ya existe en tienda)
+  Abriendo ANA ESTILOS - METROGALERIA.xlsx...
+  DUP    fila 115: ID 4088392 (ya existe en tienda)
+  DUP    fila 116: ID 4088386 (ya existe en tienda)
+  DUP    fila 117: ID 4088369 (ya existe en tienda)
+  DUP    fila 118: ID 4088365 (ya existe en tienda)
+  DUP    fila 119: ID 4088361 (ya existe en tienda)
+  DUP    fila 120: ID 4088354 (ya existe en tienda)
+  DUP    fila 121: ID 4088349 (ya existe en tienda)
+  Abriendo ANA GALDAMEZ - METROGALERIAS.xlsx...
+  DUP    fila 122: ID 4087478 (ya existe en tienda)
+  DUP    fila 123: ID 4087416 (ya existe en tienda)
+  DUP    fila 124: ID 4085221 (ya existe en tienda)
+  DUP    fila 125: ID 4084183 (ya existe en tienda)
+  Abriendo ANDREA STORE-111.xlsx...
+  DUP    fila 126: ID 4087151 (ya existe en tienda)
+  DUP    fila 127: ID 4087054 (ya existe en tienda)
+  DUP    fila 128: ID 4086798 (ya existe en tienda)
+  DUP    fila 129: ID 4086629 (ya existe en tienda)
+  DUP    fila 130: ID 4086587 (ya existe en tienda)
+  DUP    fila 131: ID 4086504 (ya existe en tienda)
+  DUP    fila 132: ID 4086435 (ya existe en tienda)
+  Abriendo ANGIE VARIEDADES - METROGALERIAS.xlsx...
+  DUP    fila 133: ID 4089239 (ya existe en tienda)
+
+  [LOTE] Guardando 25 libros...
+[OK] Guardado: ABARCA REPUESTOS-110 (SCGE).xlsx
+[OK] Guardado: ABY NAILS - METROGALERIAS.xlsx
+[OK] Guardado: ABYS FASHION-METROGALERIAS.xlsx
+[OK] Guardado: ACCESORIOS JS-116 (SCGE).xlsx
+[OK] Guardado: ACCESORIOS TEJADA-124 (SCGE).xlsx
+[OK] Guardado: ACCESORIOS ZALDAÑA-119 (SCGE).xlsx
+[OK] Guardado: ACCESORIZATE SV-133 (SCGE).xlsx
+[OK] Guardado: ACVDO SV - METROGALERIAS.xlsx
+[OK] Guardado: ADVANCED STORE-126 (SCGE).xlsx
+[OK] Guardado: AE STORE -106.xlsx
+[OK] Guardado: AFRODITA BOUTIQUE-119.xlsx
+[OK] Guardado: AG SHOP ONLINE - 116 (SCGE).xlsx
+[OK] Guardado: AGATAS ACCESORIOS-116 (SCGE).xlsx
+[OK] Guardado: ÁGUEDA MARLENE JIMÉNEZ MONTOYA-133 (SCGE).xlsx
+[OK] Guardado: AL CHILAZO ONLINE  SS-133.xlsx
+[OK] Guardado: ALEJANDRAS STORE-113.xlsx
+[OK] Guardado: ALEU SV-118.xlsx
+[OK] Guardado: ALEX ARGUETA - METROGALERIAS.xlsx
+[OK] Guardado: ALI ALI TECNOLOGÍA  - METROGALERIAS.xlsx
+[OK] Guardado: ALL SEASONS COMPANY SA DE CV -100 (SCGE).xlsx
+[OK] Guardado: AMAZING (S)-106.xlsx
+[OK] Guardado: ANA ESTILOS - METROGALERIA.xlsx
+[OK] Guardado: ANA GALDAMEZ - METROGALERIAS.xlsx
+[OK] Guardado: ANDREA STORE-111.xlsx
+[OK] Guardado: ANGIE VARIEDADES - METROGALERIAS.xlsx
+  Abriendo ANTONIO MARMOL - METROGALERIAS.xlsx...
+  DUP    fila 134: ID 4085214 (ya existe en tienda)
+  DUP    fila 135: ID 4084973 (PAQ pero ID ya existe (no fragmentar))
+  DUP    fila 136: ID 4084848 (PAQ pero ID ya existe (no fragmentar))
+  Abriendo ARDENS ELEVEN -131 (SCGE).xlsx...
+  DUP    fila 137: ID 4089396 (ya existe en tienda)
+  DUP    fila 138: ID 4089346 (ya existe en tienda)
+  Abriendo ARIANA PATRICIA VALLADARES ZUNIGA-114 (SCGE).xlsx...
+  DUP    fila 139: ID 4086164 (ya existe en tienda)
+  Abriendo ARIDRA JEWERLY-112 (SCGE).xlsx...
+  DUP    fila 140: ID 4082698 (ya existe en tienda)
+  [30/100] tiendas procesadas...
+  Abriendo ARIEL JOYERIA - METROGALERIAS.xlsx...
+  LISTO  fila 141
+  Abriendo ARTES ZAFIRO (ARTE FUNERARIO)-103 (SCGE).xlsx...
+  DUP    fila 142: ID 4089077 (ya existe en tienda)
+  DUP    fila 143: ID 4089060 (ya existe en tienda)
+  DUP    fila 144: ID 4088937 (ya existe en tienda)
+  Abriendo ARTÍCULOS VARIOS VÁSQUEZ CAMPOS-102.xlsx...
+  DUP    fila 145: ID 4084325 (ya existe en tienda)
+  DUP    fila 146: ID 4083795 (ya existe en tienda)
+  DUP    fila 147: ID 4083767 (ya existe en tienda)
+  Abriendo ARTRISANAS SV-102.xlsx...
+  DUP    fila 148: ID 4088051 (ya existe en tienda)
+  DUP    fila 149: ID 4086155 (ya existe en tienda)
+  DUP    fila 150: ID 4086087 (ya existe en tienda)
+  DUP    fila 151: ID 4086049 (ya existe en tienda)
+  DUP    fila 152: ID 4085996 (ya existe en tienda)
+  DUP    fila 153: ID 4085951 (ya existe en tienda)
+  DUP    fila 154: ID 4085819 (ya existe en tienda)
+  DUP    fila 155: ID 4085784 (ya existe en tienda)
+  DUP    fila 156: ID 4088678 (ya existe en tienda)
+  Abriendo AURA'S SHOP-100 (SCGE).xlsx...
+  DUP    fila 157: ID 4089724 (ya existe en tienda)
+  DUP    fila 158: ID 4089721 (ya existe en tienda)
+  DUP    fila 159: ID 4089720 (ya existe en tienda)
+  DUP    fila 160: ID 4089713 (ya existe en tienda)
+  DUP    fila 161: ID 4089710 (ya existe en tienda)
+  Abriendo AVM-102.xlsx...
+  DUP    fila 165: ID 4089625 (ya existe en tienda)
+  Abriendo AXEL DANAROK (TACTICAL ID) - SS-133.xlsx...
+  DUP    fila 166: ID 4088096 (ya existe en tienda)
+  Abriendo BARAHONA 503 - METROGALERIAS.xlsx...
+  DUP    fila 167: ID 4089228 (ya existe en tienda)
+  Abriendo BASIKO HOGAR -131 (SCGE).xlsx...
+  DUP    fila 168: ID 4065157 (ya existe en tienda)
+  Abriendo BAZAR MG-103 (SCGE).xlsx...
+  DUP    fila 169: ID 4072144 (ya existe en tienda)
+  DUP    fila 170: ID 4085978 (ya existe en tienda)
+  DUP    fila 171: ID 4084924 (ya existe en tienda)
+  DUP    fila 172: ID 4084704 (ya existe en tienda)
+  DUP    fila 173: ID 4084649 (ya existe en tienda)
+  DUP    fila 174: ID 4084620 (ya existe en tienda)
+  DUP    fila 175: ID 4084594 (ya existe en tienda)
+  DUP    fila 176: ID 4084539 (ya existe en tienda)
+  DUP    fila 177: ID 4084412 (ya existe en tienda)
+  DUP    fila 178: ID 4084308 (ya existe en tienda)
+  [40/100] tiendas procesadas...
+  Abriendo BEBITOS - 104.xlsx...
+  DUP    fila 179: ID 4087546 (ya existe en tienda)
+  Abriendo BELLA BOUTIQUE-103 (SCGE).xlsx...
+  DUP    fila 180: ID 4089666 (ya existe en tienda)
+  DUP    fila 181: ID 4089664 (ya existe en tienda)
+  Abriendo BELLEZA MULTIMARCA SV-106 (SCGE).xlsx...
+  DUP    fila 183: ID 4087461 (ya existe en tienda)
+  Abriendo BELLEZA MULTIMARCA-LOCKERS-106 (SCGE).xlsx...
+  DUP    fila 184: ID 4086833 (ya existe en tienda)
+  Abriendo BERAKHAH SV-112 (SCGE).xlsx...
+  DUP    fila 185: ID 4089658 (ya existe en tienda)
+  DUP    fila 186: ID 4089647 (ya existe en tienda)
+  DUP    fila 187: ID 4089642 (ya existe en tienda)
+  DUP    fila 188: ID 4089599 (ya existe en tienda)
+  Abriendo BIBLIAS Y MÁS EL SALVADOR-106 (SCGE).xlsx...
+  DUP    fila 189: ID 4087459 (ya existe en tienda)
+  DUP    fila 190: ID 4087363 (ya existe en tienda)
+  Abriendo BIENESTAR Y SALUD OP - 104.xlsx...
+  DUP    fila 191: ID 4068974 (ya existe en tienda)
+  DUP    fila 192: ID 4081257 (ya existe en tienda)
+  DUP    fila 193: ID 4081240 (ya existe en tienda)
+  DUP    fila 194: ID 4081214 (ya existe en tienda)
+  Abriendo BIOCARIBE SV-112 (SCGE).xlsx...
+  DUP    fila 195: ID 4085933 (ya existe en tienda)
+  DUP    fila 196: ID 4084667 (ya existe en tienda)
+  DUP    fila 197: ID 4084280 (ya existe en tienda)
+  DUP    fila 198: ID 4084120 (ya existe en tienda)
+  DUP    fila 199: ID 4084040 (ya existe en tienda)
+  DUP    fila 200: ID 4083978 (ya existe en tienda)
+  DUP    fila 201: ID 4083881 (ya existe en tienda)
+  DUP    fila 202: ID 4083752 (ya existe en tienda)
+  Abriendo BLOSSOM SKIN CARE-DR.RASHEL-103 (SCGE).xlsx...
+  DUP    fila 203: ID 4085034 (ya existe en tienda)
+  DUP    fila 204: ID 4085009 (ya existe en tienda)
+  DUP    fila 205: ID 4083596 (ya existe en tienda)
+  DUP    fila 206: ID 4083550 (ya existe en tienda)
+  DUP    fila 207: ID 4083507 (ya existe en tienda)
+  DUP    fila 208: ID 4083452 (ya existe en tienda)
+  DUP    fila 209: ID 4083340 (ya existe en tienda)
+  DUP    fila 210: ID 4083320 (ya existe en tienda)
+  DUP    fila 211: ID 4083283 (ya existe en tienda)
+  DUP    fila 212: ID 4083245 (ya existe en tienda)
+  DUP    fila 213: ID 4083215 (ya existe en tienda)
+  DUP    fila 214: ID 4083188 (ya existe en tienda)
+  DUP    fila 215: ID 4083152 (ya existe en tienda)
+  DUP    fila 216: ID 4083121 (ya existe en tienda)
+  Abriendo BLUE Y PINK SV - METROGALERIAS.xlsx...
+  DUP    fila 218: ID 4087931 (ya existe en tienda)
+  DUP    fila 219: ID 4087277 (ya existe en tienda)
+  DUP    fila 220: ID 4085895 (ya existe en tienda)
+  DUP    fila 221: ID 4085650 (ya existe en tienda)
+  DUP    fila 222: ID 4085259 (ya existe en tienda)
+  DUP    fila 223: ID 4083822 (ya existe en tienda)
+  [50/100] tiendas procesadas...
+  Abriendo BOOST MALE-100 (SCGE).xlsx...
+  DUP    fila 224: ID 4085930 (ya existe en tienda)
+  DUP    fila 225: ID 4085900 (ya existe en tienda)
+
+  [LOTE] Guardando 25 libros...
+[OK] Guardado: ANTONIO MARMOL - METROGALERIAS.xlsx
+[OK] Guardado: ARDENS ELEVEN -131 (SCGE).xlsx
+[OK] Guardado: ARIANA PATRICIA VALLADARES ZUNIGA-114 (SCGE).xlsx
+[OK] Guardado: ARIDRA JEWERLY-112 (SCGE).xlsx
+[OK] Guardado: ARIEL JOYERIA - METROGALERIAS.xlsx
+[OK] Guardado: ARTES ZAFIRO (ARTE FUNERARIO)-103 (SCGE).xlsx
+[OK] Guardado: ARTÍCULOS VARIOS VÁSQUEZ CAMPOS-102.xlsx
+[OK] Guardado: ARTRISANAS SV-102.xlsx
+[OK] Guardado: AURA'S SHOP-100 (SCGE).xlsx
+[OK] Guardado: AVM-102.xlsx
+[OK] Guardado: AXEL DANAROK (TACTICAL ID) - SS-133.xlsx
+[OK] Guardado: BARAHONA 503 - METROGALERIAS.xlsx
+[OK] Guardado: BASIKO HOGAR -131 (SCGE).xlsx
+[OK] Guardado: BAZAR MG-103 (SCGE).xlsx
+[OK] Guardado: BEBITOS - 104.xlsx
+[OK] Guardado: BELLA BOUTIQUE-103 (SCGE).xlsx
+[OK] Guardado: BELLEZA MULTIMARCA SV-106 (SCGE).xlsx
+[OK] Guardado: BELLEZA MULTIMARCA-LOCKERS-106 (SCGE).xlsx
+[OK] Guardado: BERAKHAH SV-112 (SCGE).xlsx
+[OK] Guardado: BIBLIAS Y MÁS EL SALVADOR-106 (SCGE).xlsx
+[OK] Guardado: BIENESTAR Y SALUD OP - 104.xlsx
+[OK] Guardado: BIOCARIBE SV-112 (SCGE).xlsx
+[OK] Guardado: BLOSSOM SKIN CARE-DR.RASHEL-103 (SCGE).xlsx
+[OK] Guardado: BLUE Y PINK SV - METROGALERIAS.xlsx
+[OK] Guardado: BOOST MALE-100 (SCGE).xlsx
+  Abriendo BOSTEN S.A DE C.V-119 (SCGE).xlsx...
+  DUP    fila 226: ID 4076799 (ya existe en tienda)
+  DUP    fila 227: ID 4077769 (ya existe en tienda)
+  Abriendo BURBUJAS CROMOS Y MAS - METROGALERIAS.xlsx...
+  DUP    fila 228: ID 4088819 (ya existe en tienda)
+  DUP    fila 229: ID 4088787 (ya existe en tienda)
+  DUP    fila 230: ID 4088770 (ya existe en tienda)
+  DUP    fila 231: ID 4088686 (ya existe en tienda)
+  DUP    fila 232: ID 4088685 (ya existe en tienda)
+  DUP    fila 233: ID 4088667 (ya existe en tienda)
+  Abriendo BYJ BOUTIQUE-103.xlsx...
+  DUP    fila 234: ID 4080918 (ya existe en tienda)
+  DUP    fila 235: ID 4080540 (ya existe en tienda)
+  DUP    fila 236: ID 4080535 (ya existe en tienda)
+  Abriendo CALZADO DE DAMA SW-100 (SCGE).xlsx...
+  DUP    fila 237: ID 4046870 (ya existe en tienda)
+  DUP    fila 238: ID 4046893 (ya existe en tienda)
+  DUP    fila 239: ID 4046930 (ya existe en tienda)
+  DUP    fila 240: ID 4075968 (ya existe en tienda)
+  DUP    fila 241: ID 4075988 (ya existe en tienda)
+  DUP    fila 242: ID 4075991 (ya existe en tienda)
+  DUP    fila 243: ID 4075994 (ya existe en tienda)
+  DUP    fila 244: ID 4075995 (ya existe en tienda)
+  DUP    fila 245: ID 4075998 (ya existe en tienda)
+  DUP    fila 246: ID 4075999 (ya existe en tienda)
+  DUP    fila 247: ID 4076000 (ya existe en tienda)
+  DUP    fila 248: ID 4088153 (ya existe en tienda)
+  DUP    fila 249: ID 4088143 (ya existe en tienda)
+  DUP    fila 250: ID 4088134 (ya existe en tienda)
+  DUP    fila 251: ID 4087930 (ya existe en tienda)
+  DUP    fila 252: ID 4087897 (ya existe en tienda)
+  DUP    fila 253: ID 4087887 (ya existe en tienda)
+  DUP    fila 254: ID 4087866 (ya existe en tienda)
+  DUP    fila 255: ID 4087852 (ya existe en tienda)
+  DUP    fila 256: ID 4087512 (ya existe en tienda)
+  DUP    fila 257: ID 4087182 (ya existe en tienda)
+  DUP    fila 258: ID 4089717 (ya existe en tienda)
+  DUP    fila 259: ID 4089696 (ya existe en tienda)
+  DUP    fila 260: ID 4089628 (ya existe en tienda)
+  DUP    fila 261: ID 4089620 (ya existe en tienda)
+  DUP    fila 262: ID 4089587 (ya existe en tienda)
+  DUP    fila 263: ID 4089579 (ya existe en tienda)
+  DUP    fila 264: ID 4089573 (ya existe en tienda)
+  DUP    fila 265: ID 4089559 (ya existe en tienda)
+  DUP    fila 266: ID 4089538 (ya existe en tienda)
+  DUP    fila 267: ID 4088917 (ya existe en tienda)
+  DUP    fila 268: ID 4088916 (ya existe en tienda)
+  DUP    fila 269: ID 4088915 (ya existe en tienda)
+  DUP    fila 270: ID 4088913 (ya existe en tienda)
+  DUP    fila 271: ID 4088912 (ya existe en tienda)
+  DUP    fila 272: ID 4088910 (ya existe en tienda)
+  DUP    fila 273: ID 4088907 (ya existe en tienda)
+  DUP    fila 274: ID 4088905 (ya existe en tienda)
+  DUP    fila 275: ID 4088902 (ya existe en tienda)
+  DUP    fila 276: ID 4088899 (ya existe en tienda)
+  DUP    fila 277: ID 4088898 (ya existe en tienda)
+  DUP    fila 278: ID 4088897 (ya existe en tienda)
+  DUP    fila 279: ID 4088896 (ya existe en tienda)
+  DUP    fila 280: ID 4088895 (ya existe en tienda)
+  DUP    fila 281: ID 4088894 (ya existe en tienda)
+  DUP    fila 282: ID 4088757 (ya existe en tienda)
+  DUP    fila 283: ID 4088755 (ya existe en tienda)
+  DUP    fila 284: ID 4088754 (ya existe en tienda)
+  DUP    fila 285: ID 4088753 (ya existe en tienda)
+  DUP    fila 286: ID 4088750 (ya existe en tienda)
+  DUP    fila 287: ID 4088743 (ya existe en tienda)
+  DUP    fila 288: ID 4088739 (ya existe en tienda)
+  DUP    fila 289: ID 4088738 (ya existe en tienda)
+  DUP    fila 290: ID 4088737 (ya existe en tienda)
+  DUP    fila 291: ID 4088736 (ya existe en tienda)
+  DUP    fila 292: ID 4088735 (ya existe en tienda)
+  DUP    fila 293: ID 4088734 (ya existe en tienda)
+  DUP    fila 294: ID 4088732 (ya existe en tienda)
+  DUP    fila 295: ID 4088730 (ya existe en tienda)
+  DUP    fila 296: ID 4088729 (ya existe en tienda)
+  DUP    fila 297: ID 4088728 (ya existe en tienda)
+  DUP    fila 298: ID 4088725 (ya existe en tienda)
+  DUP    fila 299: ID 4088724 (ya existe en tienda)
+  DUP    fila 300: ID 4088723 (ya existe en tienda)
+  DUP    fila 301: ID 4088720 (ya existe en tienda)
+  DUP    fila 302: ID 4088717 (ya existe en tienda)
+  DUP    fila 303: ID 4088716 (ya existe en tienda)
+  DUP    fila 304: ID 4088715 (ya existe en tienda)
+  Abriendo CAMPING EL SALVADOR-102 (SCGE).xlsx...
+  DUP    fila 305: ID 4088061 (ya existe en tienda)
+  Abriendo CANDEL BARBERSHOP-100.xlsx...
+  DUP    fila 306: ID 4084130 (ya existe en tienda)
+  DUP    fila 307: ID 4082555 (ya existe en tienda)
+  Abriendo CARMEN ALFARO MODA FEMENINA - METROGALERIAS.xlsx...
+  DUP    fila 312: ID 4089480 (ya existe en tienda)
+  DUP    fila 313: ID 4089417 (ya existe en tienda)
+  DUP    fila 314: ID 4089416 (ya existe en tienda)
+  DUP    fila 315: ID 4089415 (ya existe en tienda)
+  DUP    fila 316: ID 4089414 (ya existe en tienda)
+  DUP    fila 317: ID 4089413 (ya existe en tienda)
+  DUP    fila 318: ID 4089412 (ya existe en tienda)
+  DUP    fila 319: ID 4089411 (ya existe en tienda)
+  DUP    fila 320: ID 4089410 (ya existe en tienda)
+  DUP    fila 321: ID 4089409 (ya existe en tienda)
+  DUP    fila 322: ID 4089408 (ya existe en tienda)
+  DUP    fila 323: ID 4089407 (ya existe en tienda)
+  DUP    fila 324: ID 4089406 (ya existe en tienda)
+  Abriendo CARMENCITA VARIEDADES - METROGALERIAS.xlsx...
+  DUP    fila 325: ID 4083972 (ya existe en tienda)
+  DUP    fila 326: ID 4083907 (ya existe en tienda)
+  Abriendo CAROSHOP_SV-119.xlsx...
+  DUP    fila 327: ID 4080900 (ya existe en tienda)
+  [60/100] tiendas procesadas...
+  Abriendo CARPINTERÍA CAMPOS-132 (SCGE).xlsx...
+  DUP    fila 328: ID 4082613 (PAQ pero ID ya existe (no fragmentar))
+  DUP    fila 329: ID 4080943 (PAQ pero ID ya existe (no fragmentar))
+  Abriendo CARPINTERIA NOEL-106.xlsx...
+  DUP    fila 330: ID 4080350 (ya existe en tienda)
+  DUP    fila 331: ID 4080342 (ya existe en tienda)
+  Abriendo CASTRO ARTESANIA Y VARIEDADES (SCGE).xlsx...
+  DUP    fila 332: ID 4086456 (ya existe en tienda)
+  DUP    fila 333: ID 4082160 (ya existe en tienda)
+  Abriendo CATALEYA SV - METROGALERIAS.xlsx...
+  DUP    fila 334: ID 4089293 (ya existe en tienda)
+  DUP    fila 335: ID 4089238 (ya existe en tienda)
+  DUP    fila 336: ID 4089225 (ya existe en tienda)
+  DUP    fila 337: ID 4089216 (ya existe en tienda)
+  DUP    fila 338: ID 4089198 (ya existe en tienda)
+  DUP    fila 339: ID 4089188 (ya existe en tienda)
+  DUP    fila 340: ID 4089175 (ya existe en tienda)
+  DUP    fila 341: ID 4089158 (ya existe en tienda)
+  DUP    fila 342: ID 4089150 (ya existe en tienda)
+  DUP    fila 343: ID 4089140 (ya existe en tienda)
+  DUP    fila 344: ID 4089125 (ya existe en tienda)
+  DUP    fila 345: ID 4089113 (ya existe en tienda)
+  DUP    fila 346: ID 4089106 (ya existe en tienda)
+  DUP    fila 347: ID 4089100 (ya existe en tienda)
+  DUP    fila 348: ID 4089093 (ya existe en tienda)
+  DUP    fila 349: ID 4089083 (ya existe en tienda)
+  Abriendo CHEMICORESV - METROGALERIAS.xlsx...
+  DUP    fila 350: ID 4089435 (ya existe en tienda)
+  DUP    fila 351: ID 4089430 (ya existe en tienda)
+  DUP    fila 352: ID 4089395 (ya existe en tienda)
+  Abriendo CHEMIS DTF-113 (SCGE).xlsx...
+  DUP    fila 353: ID 4088942 (ya existe en tienda)
+  Abriendo CHEMISE-102.xlsx...
+  DUP    fila 354: ID 4089723 (ya existe en tienda)
+  DUP    fila 355: ID 4089722 (ya existe en tienda)
+  DUP    fila 356: ID 4089719 (ya existe en tienda)
+  DUP    fila 357: ID 4089718 (ya existe en tienda)
+  DUP    fila 358: ID 4089716 (ya existe en tienda)
+  DUP    fila 359: ID 4089742 (ya existe en tienda)
+  Abriendo CHERO CARTAS Y COLECCIONABLES2-105 (SCGE).xlsx...
+  DUP    fila 360: ID 4081308 (ya existe en tienda)
+  DUP    fila 361: ID 4081292 (ya existe en tienda)
+  DUP    fila 362: ID 4081274 (ya existe en tienda)
+  Abriendo CHILENAPOLEON-114 (SCGE).xlsx...
+  DUP    fila 363: ID 4088650 (ya existe en tienda)
+  Abriendo CLOSETTE ELOUSW- METROGALERIAS.xlsx...
+  DUP    fila 364: ID 4082376 (ya existe en tienda)
+  [70/100] tiendas procesadas...
+  Abriendo COBY SHOP - METROGALERIAS.xlsx...
+  DUP    fila 365: ID 4087086 (ya existe en tienda)
+  DUP    fila 366: ID 4086825 (ya existe en tienda)
+  DUP    fila 367: ID 4086796 (ya existe en tienda)
+  DUP    fila 368: ID 4086767 (ya existe en tienda)
+  Abriendo COCO4LUNAS -  METROGALERIAS.xlsx...
+  DUP    fila 369: ID 4082714 (ya existe en tienda)
+  Abriendo COMERCIAL DOG TREAT BAG-133 (SCGE).xlsx...
+  DUP    fila 370: ID 4089467 (ya existe en tienda)
+  Abriendo COMERCIAL GETSEMANI-116 (SCGE).xlsx...
+  DUP    fila 371: ID 4085354 (ya existe en tienda)
+  Abriendo CONFECCIONES NUNFIO-117 (SCGE).xlsx...
+  DUP    fila 372: ID 4088935 (ya existe en tienda)
+  DUP    fila 373: ID 4088923 (ya existe en tienda)
+  Abriendo CREACIONES FANNY-103.xlsx...
+  DUP    fila 374: ID 4084023 (ya existe en tienda)
+
+  [LOTE] Guardando 25 libros...
+[OK] Guardado: BOSTEN S.A DE C.V-119 (SCGE).xlsx
+[OK] Guardado: BURBUJAS CROMOS Y MAS - METROGALERIAS.xlsx
+[OK] Guardado: BYJ BOUTIQUE-103.xlsx
+[OK] Guardado: CALZADO DE DAMA SW-100 (SCGE).xlsx
+[OK] Guardado: CAMPING EL SALVADOR-102 (SCGE).xlsx
+[OK] Guardado: CANDEL BARBERSHOP-100.xlsx
+[OK] Guardado: CARMEN ALFARO MODA FEMENINA - METROGALERIAS.xlsx
+[OK] Guardado: CARMENCITA VARIEDADES - METROGALERIAS.xlsx
+[OK] Guardado: CAROSHOP_SV-119.xlsx
+[OK] Guardado: CARPINTERÍA CAMPOS-132 (SCGE).xlsx
+[OK] Guardado: CARPINTERIA NOEL-106.xlsx
+[OK] Guardado: CASTRO ARTESANIA Y VARIEDADES (SCGE).xlsx
+[OK] Guardado: CATALEYA SV - METROGALERIAS.xlsx
+[OK] Guardado: CHEMICORESV - METROGALERIAS.xlsx
+[OK] Guardado: CHEMIS DTF-113 (SCGE).xlsx
+[OK] Guardado: CHEMISE-102.xlsx
+[OK] Guardado: CHERO CARTAS Y COLECCIONABLES2-105 (SCGE).xlsx
+[OK] Guardado: CHILENAPOLEON-114 (SCGE).xlsx
+[OK] Guardado: CLOSETTE ELOUSW- METROGALERIAS.xlsx
+[OK] Guardado: COBY SHOP - METROGALERIAS.xlsx
+[OK] Guardado: COCO4LUNAS -  METROGALERIAS.xlsx
+[OK] Guardado: COMERCIAL DOG TREAT BAG-133 (SCGE).xlsx
+[OK] Guardado: COMERCIAL GETSEMANI-116 (SCGE).xlsx
+[OK] Guardado: CONFECCIONES NUNFIO-117 (SCGE).xlsx
+[OK] Guardado: CREACIONES FANNY-103.xlsx
+  Abriendo CREACIONES NAPOLES-123 (SCGE).xlsx...
+  DUP    fila 375: ID 4084395 (ya existe en tienda)
+  DUP    fila 376: ID 4084315 (ya existe en tienda)
+  DUP    fila 377: ID 4084297 (ya existe en tienda)
+  Abriendo DAGOBERTO VASQUEZ-101 (SCGE).xlsx...
+  DUP    fila 378: ID 4086744 (ya existe en tienda)
+  Abriendo DANIEL CARRANZA-103.xlsx...
+  DUP    fila 379: ID 4081030 (ya existe en tienda)
+  Abriendo DANNERS 104.xlsx...
+  DUP    fila 380: ID 4087288 (ya existe en tienda)
+  DUP    fila 381: ID 4087155 (ya existe en tienda)
+  DUP    fila 382: ID 4086957 (ya existe en tienda)
+  [80/100] tiendas procesadas...
+  Abriendo DASAL.xlsx...
+  DUP    fila 383: ID 4085322 (ya existe en tienda)
+  Abriendo DAZZLE-110 (SCGE).xlsx...
+  DUP    fila 384: ID 4086547 (ya existe en tienda)
+  Abriendo DEAL-LOKERS-124.xlsx...
+  DUP    fila 385: ID 4087221 (ya existe en tienda)
+  Abriendo DEAL-124 (SCGE).xlsx...
+  DUP    fila 386: ID 4088946 (ya existe en tienda)
+  DUP    fila 387: ID 4088436 (ya existe en tienda)
+  Abriendo DECOHAUSE.SV-105.xlsx...
+  DUP    fila 388: ID 4085062 (ya existe en tienda)
+  DUP    fila 389: ID 4083737 (ya existe en tienda)
+  DUP    fila 390: ID 4083687 (ya existe en tienda)
+  DUP    fila 391: ID 4083612 (ya existe en tienda)
+  DUP    fila 392: ID 4083556 (ya existe en tienda)
+  Abriendo DECOR ADELFAS-101 (SCGE).xlsx...
+  DUP    fila 393: ID 4084611 (ya existe en tienda)
+  DUP    fila 394: ID 4084320 (ya existe en tienda)
+  DUP    fila 395: ID 4084259 (ya existe en tienda)
+  DUP    fila 396: ID 4084234 (ya existe en tienda)
+  Abriendo DELICATE-103.xlsx...
+  DUP    fila 397: ID 4087128 (ya existe en tienda)
+  DUP    fila 398: ID 4086981 (ya existe en tienda)
+  DUP    fila 399: ID 4086221 (ya existe en tienda)
+  DUP    fila 400: ID 4086220 (ya existe en tienda)
+  DUP    fila 401: ID 4086219 (ya existe en tienda)
+  DUP    fila 402: ID 4086218 (ya existe en tienda)
+  DUP    fila 403: ID 4086216 (ya existe en tienda)
+  DUP    fila 404: ID 4086215 (ya existe en tienda)
+  DUP    fila 405: ID 4086214 (ya existe en tienda)
+  DUP    fila 406: ID 4086213 (ya existe en tienda)
+  Abriendo DESINTOXICACIÓN ORGÁNICA - METROGALERIAS.xlsx...
+  DUP    fila 407: ID 4089623 (ya existe en tienda)
+  DUP    fila 408: ID 4089611 (ya existe en tienda)
+  DUP    fila 409: ID 4089608 (ya existe en tienda)
+  DUP    fila 410: ID 4089605 (ya existe en tienda)
+  DUP    fila 411: ID 4089598 (ya existe en tienda)
+  DUP    fila 412: ID 4089595 (ya existe en tienda)
+  DUP    fila 413: ID 4089592 (ya existe en tienda)
+  DUP    fila 414: ID 4089556 (ya existe en tienda)
+  DUP    fila 415: ID 4089547 (ya existe en tienda)
+  DUP    fila 416: ID 4089537 (ya existe en tienda)
+  DUP    fila 417: ID 4089533 (ya existe en tienda)
+  DUP    fila 418: ID 4089522 (ya existe en tienda)
+  DUP    fila 419: ID 4089516 (ya existe en tienda)
+  DUP    fila 420: ID 4089505 (ya existe en tienda)
+  DUP    fila 421: ID 4089500 (ya existe en tienda)
+  DUP    fila 422: ID 4089491 (ya existe en tienda)
+  DUP    fila 423: ID 4089296 (ya existe en tienda)
+  DUP    fila 424: ID 4089285 (ya existe en tienda)
+  DUP    fila 425: ID 4089274 (ya existe en tienda)
+  DUP    fila 426: ID 4089256 (ya existe en tienda)
+  DUP    fila 427: ID 4089245 (ya existe en tienda)
+  DUP    fila 428: ID 4089237 (ya existe en tienda)
+  DUP    fila 429: ID 4089231 (ya existe en tienda)
+  DUP    fila 430: ID 4089224 (ya existe en tienda)
+  Abriendo DETALLE BOUTIQUE-133 (SCGE).xlsx...
+  DUP    fila 431: ID 4080820 (ya existe en tienda)
+  DUP    fila 432: ID 4080737 (ya existe en tienda)
+  Abriendo DIGADGETS-113 (SCGE).xlsx...
+  DUP    fila 433: ID 4087185 (ya existe en tienda)
+  [90/100] tiendas procesadas...
+  Abriendo DIPLO-102 (SCGE).xlsx...
+  DUP    fila 434: ID 4080135 (ya existe en tienda)
+  DUP    fila 435: ID 4080131 (ya existe en tienda)
+  DUP    fila 436: ID 4080124 (ya existe en tienda)
+  DUP    fila 437: ID 4080106 (ya existe en tienda)
+  DUP    fila 438: ID 4080099 (ya existe en tienda)
+  Abriendo DISAFE S.A. DE C.V-102 (SCGE).xlsx...
+  DUP    fila 439: ID 4085827 (ya existe en tienda)
+  DUP    fila 440: ID 4082544 (ya existe en tienda)
+  Abriendo DISTRIBUIDORA DELMY SRL-105 (SCGE).xlsx...
+  DUP    fila 441: ID 4084316 (ya existe en tienda)
+  DUP    fila 442: ID 4084279 (ya existe en tienda)
+  DUP    fila 443: ID 4084251 (ya existe en tienda)
+  DUP    fila 444: ID 4084210 (ya existe en tienda)
+  DUP    fila 445: ID 4084181 (ya existe en tienda)
+  Abriendo DISTRIBUIDORA EBEN-EZER -107 (SCGE).xlsx...
+  DUP    fila 446: ID 4086611 (ya existe en tienda)
+  DUP    fila 447: ID 4085017 (ya existe en tienda)
+  DUP    fila 448: ID 4084985 (ya existe en tienda)
+  DUP    fila 449: ID 4084955 (ya existe en tienda)
+  Abriendo DISTRIBUIDORA EM503-133 (SCGE).xlsx...
+  DUP    fila 450: ID 4087269 (ya existe en tienda)
+  DUP    fila 451: ID 4087191 (ya existe en tienda)
+  DUP    fila 452: ID 4087129 (ya existe en tienda)
+  DUP    fila 453: ID 4087088 (ya existe en tienda)
+  Abriendo DISTRIBUIDORA EM503-LOCKERS-117 (SCGE).xlsx...
+  DUP    fila 454: ID 4087452 (ya existe en tienda)
+  Abriendo DISTRIBUIDORA FUENTES -113.xlsx...
+  DUP    fila 455: ID 4086434 (ya existe en tienda)
+  DUP    fila 456: ID 4086409 (ya existe en tienda)
+  DUP    fila 457: ID 4085207 (ya existe en tienda)
+  DUP    fila 458: ID 4085141 (ya existe en tienda)
+  DUP    fila 459: ID 4085091 (ya existe en tienda)
+  DUP    fila 460: ID 4085024 (ya existe en tienda)
+  DUP    fila 461: ID 4084954 (ya existe en tienda)
+  DUP    fila 462: ID 4084845 (ya existe en tienda)
+  DUP    fila 463: ID 4084732 (ya existe en tienda)
+  DUP    fila 464: ID 4084664 (ya existe en tienda)
+  DUP    fila 465: ID 4084609 (ya existe en tienda)
+  DUP    fila 466: ID 4084548 (ya existe en tienda)
+  Abriendo DISTRIBUIDORA GISSELLE-105.xlsx...
+  DUP    fila 467: ID 4088614 (ya existe en tienda)
+  DUP    fila 468: ID 4088522 (ya existe en tienda)
+  DUP    fila 469: ID 4088486 (ya existe en tienda)
+  DUP    fila 470: ID 4088416 (ya existe en tienda)
+  DUP    fila 471: ID 4088396 (ya existe en tienda)
+  DUP    fila 472: ID 4088338 (ya existe en tienda)
+  DUP    fila 473: ID 4088306 (ya existe en tienda)
+  DUP    fila 474: ID 4088284 (ya existe en tienda)
+  DUP    fila 475: ID 4088268 (ya existe en tienda)
+  Abriendo DISTRIBUIDORA HOME CONFORT -114.xlsx...
+  DUP    fila 476: ID 4087105 (ya existe en tienda)
+  DUP    fila 477: ID 4086582 (ya existe en tienda)
+  DUP    fila 478: ID 4086550 (ya existe en tienda)
+  DUP    fila 479: ID 4086470 (ya existe en tienda)
+  DUP    fila 480: ID 4086321 (ya existe en tienda)
+  Abriendo DISTRIBUIDORA LOLY-125 (SCGE).xlsx...
+  DUP    fila 481: ID 4086152 (ya existe en tienda)
+  DUP    fila 482: ID 4086071 (ya existe en tienda)
+  DUP    fila 483: ID 4086054 (ya existe en tienda)
+  DUP    fila 484: ID 4085832 (ya existe en tienda)
+  DUP    fila 485: ID 4085773 (ya existe en tienda)
+  DUP    fila 486: ID 4085661 (ya existe en tienda)
+  DUP    fila 487: ID 4085637 (ya existe en tienda)
+  DUP    fila 488: ID 4085613 (ya existe en tienda)
+  DUP    fila 489: ID 4085572 (ya existe en tienda)
+  DUP    fila 490: ID 4085543 (PAQ pero ID ya existe (no fragmentar))
+  DUP    fila 491: ID 4085498 (ya existe en tienda)
+  DUP    fila 492: ID 4085462 (ya existe en tienda)
+  DUP    fila 493: ID 4085264 (ya existe en tienda)
+  DUP    fila 494: ID 4085223 (ya existe en tienda)
+  DUP    fila 495: ID 4084884 (ya existe en tienda)
+  DUP    fila 496: ID 4084827 (ya existe en tienda)
+  DUP    fila 497: ID 4084793 (ya existe en tienda)
+  DUP    fila 498: ID 4084773 (ya existe en tienda)
+  DUP    fila 499: ID 4084713 (ya existe en tienda)
+  DUP    fila 500: ID 4084694 (ya existe en tienda)
+  DUP    fila 501: ID 4084617 (ya existe en tienda)
+  DUP    fila 502: ID 4084569 (ya existe en tienda)
+  DUP    fila 503: ID 4083833 (ya existe en tienda)
+  [100/100] tiendas procesadas...
+
+Guardando archivos de tiendas...
+[OK] Guardado: CREACIONES NAPOLES-123 (SCGE).xlsx
+[OK] Guardado: DAGOBERTO VASQUEZ-101 (SCGE).xlsx
+[OK] Guardado: DANIEL CARRANZA-103.xlsx
+[OK] Guardado: DANNERS 104.xlsx
+[OK] Guardado: DASAL.xlsx
+[OK] Guardado: DAZZLE-110 (SCGE).xlsx
+[OK] Guardado: DEAL-LOKERS-124.xlsx
+[OK] Guardado: DEAL-124 (SCGE).xlsx
+[OK] Guardado: DECOHAUSE.SV-105.xlsx
+[OK] Guardado: DECOR ADELFAS-101 (SCGE).xlsx
+[OK] Guardado: DELICATE-103.xlsx
+[OK] Guardado: DESINTOXICACIÓN ORGÁNICA - METROGALERIAS.xlsx
+[OK] Guardado: DETALLE BOUTIQUE-133 (SCGE).xlsx
+[OK] Guardado: DIGADGETS-113 (SCGE).xlsx
+[OK] Guardado: DIPLO-102 (SCGE).xlsx
+[OK] Guardado: DISAFE S.A. DE C.V-102 (SCGE).xlsx
+[OK] Guardado: DISTRIBUIDORA DELMY SRL-105 (SCGE).xlsx
+[OK] Guardado: DISTRIBUIDORA EBEN-EZER -107 (SCGE).xlsx
+[OK] Guardado: DISTRIBUIDORA EM503-133 (SCGE).xlsx
+[OK] Guardado: DISTRIBUIDORA EM503-LOCKERS-117 (SCGE).xlsx
+[OK] Guardado: DISTRIBUIDORA FUENTES -113.xlsx
+[OK] Guardado: DISTRIBUIDORA GISSELLE-105.xlsx
+[OK] Guardado: DISTRIBUIDORA HOME CONFORT -114.xlsx
+[OK] Guardado: DISTRIBUIDORA LOLY-125 (SCGE).xlsx
+
+Actualizando hoja FALTA...
+[OK] 24 filas en hoja FALTA
+
+Guardando INGRESO_MASIVO...
+[OK] INGRESO_MASIVO guardado
+[OK] Registro de deshacer guardado (99 archivo(s))
+
+============================================================
+  PROCESO COMPLETADO
+============================================================
+  LISTO : 13
+  FALTA : 24
+  DUP   : 470
+  BLOQ  : 8
+  Tiempo: 182.3s
+
+  RESUMEN POR TIENDA:
+  TIENDA                                    LISTO   DUP
+  ------------------------------------------------------
+  ABYS FASHION-METROGALERIAS.xlsx               6     0
+  AGATAS ACCESORIOS-116 (SCGE).xlsx             5     0
+  ACCESORIZATE SV-133 (SCGE).xlsx               1     0
+  ARIEL JOYERIA - METROGALERIAS.xlsx            1     0
+  ABARCA REPUESTOS-110 (SCGE).xlsx              0     4
+  ABY NAILS - METROGALERIAS.xlsx                0     3
+  ACCESORIOS JS-116 (SCGE).xlsx                 0     1
+  ACCESORIOS TEJADA-124 (SCGE).xlsx             0     1
+  ACCESORIOS ZALDAÑA-119 (SCGE).xlsx            0     1
+  ACVDO SV - METROGALERIAS.xlsx                 0     3
+  ADVANCED STORE-126 (SCGE).xlsx                0     6
+  AE STORE -106.xlsx                            0     2
+  AFRODITA BOUTIQUE-119.xlsx                    0     2
+  AG SHOP ONLINE - 116 (SCGE).xlsx              0     3
+  ÁGUEDA MARLENE JIMÉNEZ MONTOYA-133 (SCGE      0     1
+  AL CHILAZO ONLINE  SS-133.xlsx                0     4
+  ALEJANDRAS STORE-113.xlsx                     0     1
+  ALEU SV-118.xlsx                              0     1
+  ALEX ARGUETA - METROGALERIAS.xlsx             0     3
+  ALI ALI TECNOLOGÍA  - METROGALERIAS.xlsx      0    46
+  ALL SEASONS COMPANY SA DE CV -100 (SCGE)      0     3
+  AMAZING (S)-106.xlsx                          0     1
+  ANA ESTILOS - METROGALERIA.xlsx               0     7
+  ANA GALDAMEZ - METROGALERIAS.xlsx             0     4
+  ANDREA STORE-111.xlsx                         0     7
+  ANGIE VARIEDADES - METROGALERIAS.xlsx         0     1
+  ANTONIO MARMOL - METROGALERIAS.xlsx           0     3
+  ARDENS ELEVEN -131 (SCGE).xlsx                0     2
+  ARIANA PATRICIA VALLADARES ZUNIGA-114 (S      0     1
+  ARIDRA JEWERLY-112 (SCGE).xlsx                0     1
+  ARTES ZAFIRO (ARTE FUNERARIO)-103 (SCGE)      0     3
+  ARTÍCULOS VARIOS VÁSQUEZ CAMPOS-102.xlsx      0     3
+  ARTRISANAS SV-102.xlsx                        0     9
+  AURA'S SHOP-100 (SCGE).xlsx                   0     5
+  AVM-102.xlsx                                  0     1
+  AXEL DANAROK (TACTICAL ID) - SS-133.xlsx      0     1
+  BARAHONA 503 - METROGALERIAS.xlsx             0     1
+  BASIKO HOGAR -131 (SCGE).xlsx                 0     1
+  BAZAR MG-103 (SCGE).xlsx                      0    10
+  BEBITOS - 104.xlsx                            0     1
+  BELLA BOUTIQUE-103 (SCGE).xlsx                0     2
+  BELLEZA MULTIMARCA SV-106 (SCGE).xlsx         0     1
+  BELLEZA MULTIMARCA-LOCKERS-106 (SCGE).xl      0     1
+  BERAKHAH SV-112 (SCGE).xlsx                   0     4
+  BIBLIAS Y MÁS EL SALVADOR-106 (SCGE).xls      0     2
+  BIENESTAR Y SALUD OP - 104.xlsx               0     4
+  BIOCARIBE SV-112 (SCGE).xlsx                  0     8
+  BLOSSOM SKIN CARE-DR.RASHEL-103 (SCGE).x      0    14
+  BLUE Y PINK SV - METROGALERIAS.xlsx           0     6
+  BOOST MALE-100 (SCGE).xlsx                    0     2
+  BOSTEN S.A DE C.V-119 (SCGE).xlsx             0     2
+  BURBUJAS CROMOS Y MAS - METROGALERIAS.xl      0     6
+  BYJ BOUTIQUE-103.xlsx                         0     3
+  CALZADO DE DAMA SW-100 (SCGE).xlsx            0    68
+  CAMPING EL SALVADOR-102 (SCGE).xlsx           0     1
+  CANDEL BARBERSHOP-100.xlsx                    0     2
+  CARMEN ALFARO MODA FEMENINA - METROGALER      0    13
+  CARMENCITA VARIEDADES - METROGALERIAS.xl      0     2
+  CAROSHOP_SV-119.xlsx                          0     1
+  CARPINTERÍA CAMPOS-132 (SCGE).xlsx            0     2
+  CARPINTERIA NOEL-106.xlsx                     0     2
+  CASTRO ARTESANIA Y VARIEDADES (SCGE).xls      0     2
+  CATALEYA SV - METROGALERIAS.xlsx              0    16
+  CHEMICORESV - METROGALERIAS.xlsx              0     3
+  CHEMIS DTF-113 (SCGE).xlsx                    0     1
+  CHEMISE-102.xlsx                              0     6
+  CHERO CARTAS Y COLECCIONABLES2-105 (SCGE      0     3
+  CHILENAPOLEON-114 (SCGE).xlsx                 0     1
+  CLOSETTE ELOUSW- METROGALERIAS.xlsx           0     1
+  COBY SHOP - METROGALERIAS.xlsx                0     4
+  COCO4LUNAS -  METROGALERIAS.xlsx              0     1
+  COMERCIAL DOG TREAT BAG-133 (SCGE).xlsx       0     1
+  COMERCIAL GETSEMANI-116 (SCGE).xlsx           0     1
+  CONFECCIONES NUNFIO-117 (SCGE).xlsx           0     2
+  CREACIONES FANNY-103.xlsx                     0     1
+  CREACIONES NAPOLES-123 (SCGE).xlsx            0     3
+  DAGOBERTO VASQUEZ-101 (SCGE).xlsx             0     1
+  DANIEL CARRANZA-103.xlsx                      0     1
+  DANNERS 104.xlsx                              0     3
+  DASAL.xlsx                                    0     1
+  DAZZLE-110 (SCGE).xlsx                        0     1
+  DEAL-LOKERS-124.xlsx                          0     1
+  DEAL-124 (SCGE).xlsx                          0     2
+  DECOHAUSE.SV-105.xlsx                         0     5
+  DECOR ADELFAS-101 (SCGE).xlsx                 0     4
+  DELICATE-103.xlsx                             0    10
+  DESINTOXICACIÓN ORGÁNICA - METROGALERIAS      0    24
+  DETALLE BOUTIQUE-133 (SCGE).xlsx              0     2
+  DIGADGETS-113 (SCGE).xlsx                     0     1
+  DIPLO-102 (SCGE).xlsx                         0     5
+  DISAFE S.A. DE C.V-102 (SCGE).xlsx            0     2
+  DISTRIBUIDORA DELMY SRL-105 (SCGE).xlsx       0     5
+  DISTRIBUIDORA EBEN-EZER -107 (SCGE).xlsx      0     4
+  DISTRIBUIDORA EM503-133 (SCGE).xlsx           0     4
+  DISTRIBUIDORA EM503-LOCKERS-117 (SCGE).x      0     1
+  DISTRIBUIDORA FUENTES -113.xlsx               0    12
+  DISTRIBUIDORA GISSELLE-105.xlsx               0     9
+  DISTRIBUIDORA HOME CONFORT -114.xlsx          0     5
+  DISTRIBUIDORA LOLY-125 (SCGE).xlsx            0    23
+============================================================
+
+Log guardado en: C:\Users\USUARIO\Downloads\INGRESO_MAS_v5 (3)\ultimo_proceso.log

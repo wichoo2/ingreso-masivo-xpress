@@ -6,8 +6,8 @@
 import os
 
 # --- Rutas ---
-CARPETA_TIENDAS = r"C:/Users/mancia/Downloads/ALL_TIENDAS/ALL_TIENDAS"
-ARCHIVO_INGRESO = r"C:/Users/mancia/Downloads/fwdingresomasivo16marzooficial/INGRESO_MASIVO.xlsx"
+CARPETA_TIENDAS = r"C:/Users/USUARIO/OneDrive/Clientes_Xpress_2.0"
+ARCHIVO_INGRESO = r"C:/Users/USUARIO/Downloads/INGRESO_MAS_v5 (3)/INGRESO_MASIVO.xlsx"
 
 # --- Hojas ---
 HOJA_ORIGEN      = "INGRESO_MASIVO"

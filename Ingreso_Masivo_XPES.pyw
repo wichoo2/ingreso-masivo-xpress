@@ -329,6 +329,7 @@ class App(tk.Tk):
         self._sbtn(sb, "Ejecutar",       "F5  |  Procesar INGRESO_MASIVO",   ORANGE,  self._ejecutar, True)
         self._sbtn(sb, "Verificar",      "Comprobar archivos .xlsx",          BLUE,    self._verificar)
         self._sbtn(sb, "Indexar tiendas","Actualizar indice col E",           ORANGE3, self._indexar)
+        self._btn_deshacer = self._sbtn(sb, "⟲ Deshacer",   "Revertir el ultimo proceso",        "#8B4513",   self._deshacer_proceso)
 
         tk.Frame(sb, bg=BORDER, height=1).pack(fill="x", padx=16, pady=6)
         self._mk_sec(sb, "REPORTES")
@@ -336,6 +337,7 @@ class App(tk.Tk):
         self._sbtn(sb, "Diagnosticar",   "Por que no se ingresa una tienda",  RED,     self._abrir_diagnostico)
         self._sbtn(sb, "Cambiar rutas",  "Configurar archivos y carpetas",    WHITE4,  self._abrir_config)
         self._sbtn(sb, "Lista omisiones","Forzar ingreso por nombre manual",  ORANGE3, self._abrir_omisiones)
+        self._sbtn(sb, "Lista negra",    "Tiendas bloqueadas permanentemente", RED,     self._abrir_blacklist)
 
         tk.Frame(sb, bg=BORDER, height=1).pack(fill="x", padx=16, pady=6)
 
@@ -1251,6 +1253,123 @@ class App(tk.Tk):
         self._log_add("▶  Iniciando proceso de ingreso masivo...", "info")
         self._t_inicio = time.time()
         threading.Thread(target=self._run, args=(MAIN_PY,), daemon=True).start()
+
+
+    def _deshacer_proceso(self):
+        """Revierte el último proceso restaurando los backups de los archivos de tienda."""
+        if self._proceso_activo:
+            self._log_add("⚠  No se puede deshacer mientras hay un proceso activo.", "warn")
+            return
+
+        # Importar main_local para verificar si hay algo que deshacer
+        import sys, importlib
+        sys.path.insert(0, BASE_DIR)
+        try:
+            import main_local as _ml
+            importlib.reload(_ml)
+            puede, info = _ml._deshacer.puede_deshacer()
+        except Exception as e:
+            self._log_add("✗  Error al verificar backup: {}".format(e), "error")
+            return
+
+        if not puede:
+            self._log_add("⚠  {}".format(info), "warn")
+            return
+
+        # Pedir contraseña antes de continuar
+        import tkinter as _tk
+        from tkinter import messagebox
+
+        dlg_pass = _tk.Toplevel(self)
+        dlg_pass.title("Contraseña requerida")
+        dlg_pass.configure(bg=BG2)
+        dlg_pass.resizable(False, False)
+        dlg_pass.transient(self)
+        dlg_pass.grab_set()
+
+        # Centrar sobre la ventana principal
+        self.update_idletasks()
+        x = self.winfo_x() + (self.winfo_width()  // 2) - 175
+        y = self.winfo_y() + (self.winfo_height() // 2) - 80
+        dlg_pass.geometry("350x160+{}+{}".format(x, y))
+
+        _tk.Frame(dlg_pass, bg=RED, height=3).pack(fill="x")
+
+        body = _tk.Frame(dlg_pass, bg=BG2, padx=24, pady=18)
+        body.pack(fill="both", expand=True)
+
+        _tk.Label(body, text="Ingresa la contraseña para deshacer:",
+                  bg=BG2, fg=WHITE3, font=("Segoe UI", 9)).pack(anchor="w")
+
+        entry_pass = _tk.Entry(body, show="*", bg=BG4, fg=WHITE,
+                               font=("Segoe UI", 10), relief="flat",
+                               insertbackground=WHITE, bd=0)
+        entry_pass.pack(fill="x", pady=(6, 12), ipady=5)
+        entry_pass.focus_set()
+
+        _pass_ok = [False]
+
+        def _verificar(event=None):
+            if entry_pass.get() == "IngresoMas2026x":
+                _pass_ok[0] = True
+                dlg_pass.destroy()
+            else:
+                entry_pass.delete(0, "end")
+                entry_pass.configure(bg="#4a1a1a")
+                dlg_pass.after(600, lambda: entry_pass.configure(bg=BG4))
+
+        def _cancelar():
+            dlg_pass.destroy()
+
+        btn_frame = _tk.Frame(body, bg=BG2)
+        btn_frame.pack(fill="x")
+        _tk.Button(btn_frame, text="Cancelar", bg=BG3, fg=WHITE3,
+                   font=("Segoe UI", 8), relief="flat", cursor="hand2",
+                   bd=0, padx=12, pady=4, activebackground=BG5,
+                   command=_cancelar).pack(side="left")
+        _tk.Button(btn_frame, text="  Confirmar  ", bg=RED, fg=WHITE,
+                   font=("Segoe UI", 8, "bold"), relief="flat", cursor="hand2",
+                   bd=0, padx=12, pady=4, activebackground="#cc3355",
+                   command=_verificar).pack(side="right")
+
+        entry_pass.bind("<Return>", _verificar)
+        entry_pass.bind("<Escape>", lambda e: _cancelar())
+
+        self.wait_window(dlg_pass)
+
+        if not _pass_ok[0]:
+            return
+
+        # Confirmar con el usuario
+        conf = messagebox.askyesno(
+            "Deshacer proceso",
+            "{}\n\n¿Deseas restaurar los archivos de tienda a como estaban ANTES del último proceso?\n\nEsta acción no se puede deshacer.",
+            icon="warning"
+        )
+        if not conf:
+            return
+
+        self._bloquear()
+        self._limpiar_log()
+        self._log_add("⟲  Deshaciendo último proceso de ingreso...", "info")
+
+        def _run_deshacer():
+            try:
+                exito, msg = _ml.deshacer_ultimo_proceso(
+                    callback_log=lambda m: self.after(0, lambda: self._log_add(m, "ok" if "[OK]" in m else "warn"))
+                )
+                def _fin():
+                    if exito:
+                        self._log_add("✓  {}".format(msg), "ok")
+                    else:
+                        self._log_add("✗  {}".format(msg), "error")
+                    self._desbloquear()
+                self.after(0, _fin)
+            except Exception as e:
+                self.after(0, lambda: self._log_add("✗  Error inesperado: {}".format(e), "error"))
+                self.after(0, self._desbloquear)
+
+        threading.Thread(target=_run_deshacer, daemon=True).start()
 
     def _verificar(self):
         if self._proceso_activo: return
@@ -2195,28 +2314,90 @@ class App(tk.Tk):
 
 
     # =========================================================================
-    # LISTA DE OMISIONES
+    # HELPERS COMPARTIDOS — leer/escribir hojas del INGRESO_MASIVO.xlsx
     # =========================================================================
-    def _abrir_omisiones(self):
-        import json as _json, glob as _g, importlib.util
-
-        # Leer omisiones actuales
-        omisiones_file = os.path.join(BASE_DIR, "omisiones.json")
-        try:
-            with open(omisiones_file, "r", encoding="utf-8") as f:
-                omisiones_raw = _json.load(f)
-        except Exception:
-            omisiones_raw = {}
-
-        # Leer archivos disponibles para el autocompletado
+    def _get_ruta_ingreso(self):
+        """Retorna la ruta del INGRESO_MASIVO desde config, o None si no existe."""
+        import importlib.util
         try:
             spec = importlib.util.spec_from_file_location("config_local", CONFIG_PY)
             cfg  = importlib.util.module_from_spec(spec)
             spec.loader.exec_module(cfg)
-            carpeta = cfg.CARPETA_TIENDAS
+            return cfg.ARCHIVO_INGRESO
+        except Exception:
+            return None
+
+    def _leer_hoja_excel(self, ruta, nombre_hoja, n_cols):
+        """
+        Abre el Excel y lee la hoja indicada desde fila 2.
+        n_cols: cuántas columnas leer por fila (1 para blacklist, 2 para omisiones).
+        Retorna lista de tuplas con los valores, sin None.
+        """
+        from openpyxl import load_workbook
+        filas = []
+        try:
+            wb = load_workbook(ruta, read_only=True, data_only=True)
+            if nombre_hoja not in wb.sheetnames:
+                wb.close()
+                return []
+            ws = wb[nombre_hoja]
+            for row in ws.iter_rows(min_row=2, max_col=n_cols, values_only=True):
+                vals = tuple(str(c).strip() if c is not None else "" for c in row)
+                if any(v for v in vals):
+                    filas.append(vals)
+            wb.close()
+        except Exception:
+            pass
+        return filas
+
+    def _guardar_hoja_excel(self, ruta, nombre_hoja, encabezados, filas):
+        """
+        Abre el Excel, borra la hoja indicada y la recrea con los nuevos datos.
+        encabezados: lista de strings para la fila 1.
+        filas: lista de tuplas con los valores a escribir desde fila 2.
+        """
+        from openpyxl import load_workbook
+        try:
+            wb = load_workbook(ruta, keep_vba=False)
+            if nombre_hoja in wb.sheetnames:
+                del wb[nombre_hoja]
+            ws = wb.create_sheet(nombre_hoja)
+            for ci, enc in enumerate(encabezados, start=1):
+                ws.cell(row=1, column=ci).value = enc
+            for ri, fila in enumerate(filas, start=2):
+                for ci, val in enumerate(fila, start=1):
+                    ws.cell(row=ri, column=ci).value = val
+            wb.save(ruta)
+            wb.close()
+            return True, ""
+        except Exception as e:
+            return False, str(e)
+
+    # =========================================================================
+    # LISTA DE OMISIONES  (hoja OMISIONES en INGRESO_MASIVO.xlsx)
+    # =========================================================================
+    def _abrir_omisiones(self):
+        import glob as _g
+
+        ruta = self._get_ruta_ingreso()
+        if not ruta or not os.path.isfile(ruta):
+            messagebox.showerror("Error",
+                "No se encontró INGRESO_MASIVO.\nConfigura la ruta en 'Cambiar rutas'.",
+                parent=self)
+            return
+
+        # Leer datos actuales desde la hoja Excel
+        filas_actuales = self._leer_hoja_excel(ruta, "OMISIONES", 2)
+
+        # Archivos disponibles para autocompletado
+        try:
+            import importlib.util
+            spec = importlib.util.spec_from_file_location("config_local", CONFIG_PY)
+            cfg  = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(cfg)
             archivos_disp = sorted([
                 os.path.splitext(os.path.basename(r))[0]
-                for r in _g.glob(os.path.join(carpeta, "*.xls*"))
+                for r in _g.glob(os.path.join(cfg.CARPETA_TIENDAS, "*.xls*"))
                 if not os.path.basename(r).startswith("~$")
             ])
         except Exception:
@@ -2239,9 +2420,12 @@ class App(tk.Tk):
         tk.Label(hdr,
                  text="Fuerza el ingreso ignorando la búsqueda automática",
                  bg=BG2, fg=WHITE3, font=UI_SM).pack(side="left", padx=4)
+
+        # Indicador de fuente
+        tk.Label(hdr, text="● Excel", bg=BG2, fg=GREEN,
+                 font=("Segoe UI",7,"bold")).pack(side="right", padx=16)
         tk.Frame(dlg, bg=BORDER, height=1).pack(fill="x")
 
-        # Explicación
         tk.Label(dlg,
                  text="  Columna E (como aparece en INGRESO_MASIVO)  →  Nombre del archivo de tienda (sin .xlsx)",
                  bg=BG, fg=WHITE4, font=("Segoe UI",8)).pack(anchor="w", padx=16, pady=(8,4))
@@ -2256,7 +2440,7 @@ class App(tk.Tk):
                  fg=WHITE3, font=("Segoe UI",8,"bold"), anchor="w").pack(
                      side="left", padx=4, pady=5)
 
-        # Área scrollable de filas
+        # Área scrollable
         outer = tk.Frame(dlg, bg=BG)
         outer.pack(fill="both", expand=True, padx=16, pady=4)
         cvs = tk.Canvas(outer, bg=BG, highlightthickness=0)
@@ -2273,14 +2457,14 @@ class App(tk.Tk):
         cvs.bind("<MouseWheel>",
                  lambda e: cvs.yview_scroll(int(-1*(e.delta/120)), "units"))
 
-        filas_om = []  # lista de (var_nombre, var_archivo, frame)
+        filas_om = []
 
-        def _agregar_fila(nombre_e="", nombre_arch=""):
+        def _agregar_fila(col_e="", col_arch=""):
             fila_f = tk.Frame(body, bg=BG)
             fila_f.pack(fill="x", pady=2)
 
-            var_e    = tk.StringVar(value=nombre_e)
-            var_arch = tk.StringVar(value=nombre_arch)
+            var_e    = tk.StringVar(value=col_e)
+            var_arch = tk.StringVar(value=col_arch)
 
             tk.Entry(fila_f, textvariable=var_e, bg=BG4, fg=WHITE,
                      font=UI_SM, relief="flat", bd=0, width=30,
@@ -2293,7 +2477,6 @@ class App(tk.Tk):
                                 insertbackground=GREEN)
             ent_arch.pack(side="left", ipady=5, padx=(0,4), fill="x", expand=True)
 
-            # Autocompletado al escribir
             def _autocomplete(e, ent=ent_arch, var=var_arch):
                 txt = var.get().strip().lower()
                 if not txt or len(txt) < 2:
@@ -2320,16 +2503,16 @@ class App(tk.Tk):
 
             filas_om.append({"frame": fila_f, "e": var_e, "arch": var_arch})
 
-        # Cargar omisiones existentes
-        for nombre_e, nombre_arch in omisiones_raw.items():
-            _agregar_fila(nombre_e, nombre_arch)
+        for vals in filas_actuales:
+            _agregar_fila(vals[0] if len(vals) > 0 else "",
+                          vals[1] if len(vals) > 1 else "")
 
-        # Nota archivos disponibles
-        nota = "Archivos disponibles: {}".format(len(archivos_disp))
-        tk.Label(dlg, text=nota, bg=BG, fg=WHITE4,
-                 font=("Segoe UI",7)).pack(anchor="w", padx=16, pady=(0,2))
+        tk.Label(dlg,
+                 text="Archivos disponibles: {}  |  Guardado en: hoja OMISIONES del INGRESO_MASIVO.xlsx".format(
+                     len(archivos_disp)),
+                 bg=BG, fg=WHITE4, font=("Segoe UI",7)).pack(anchor="w", padx=16, pady=(0,2))
 
-        # Botones inferiores
+        # Botones
         bf = tk.Frame(dlg, bg=BG)
         bf.pack(fill="x", padx=16, pady=10)
 
@@ -2339,23 +2522,27 @@ class App(tk.Tk):
                   command=lambda: _agregar_fila()).pack(side="left", padx=(0,8))
 
         def _guardar():
-            nuevo = {}
+            nuevas = []
             for r in filas_om:
                 if r is None:
                     continue
                 k = r["e"].get().strip()
                 v = r["arch"].get().strip()
                 if k and v:
-                    nuevo[k] = v
-            try:
-                with open(omisiones_file, "w", encoding="utf-8") as f:
-                    _json.dump(nuevo, f, ensure_ascii=False, indent=2)
-                self._log_add("✓ Lista de omisiones guardada ({} entradas).".format(
-                    len(nuevo)), "ok")
+                    nuevas.append((k, v))
+
+            ok, err = self._guardar_hoja_excel(
+                ruta, "OMISIONES",
+                ["NOMBRE_TIENDA", "ARCHIVO_DESTINO"],
+                nuevas)
+
+            if ok:
+                self._log_add("✓ Omisiones guardadas en Excel ({} entradas).".format(
+                    len(nuevas)), "ok")
                 dlg.destroy()
-            except Exception as e:
-                messagebox.showerror("Error", "No se pudo guardar:\n{}".format(e),
-                                     parent=dlg)
+            else:
+                messagebox.showerror("Error",
+                    "No se pudo guardar en Excel:\n{}".format(err), parent=dlg)
 
         tk.Button(bf, text="Cancelar", bg=BG3, fg=WHITE3,
                   font=UI_SM, relief="flat", cursor="hand2",
@@ -2366,6 +2553,166 @@ class App(tk.Tk):
                   bg=ORANGE3, fg=WHITE, font=UI_B,
                   relief="flat", cursor="hand2", bd=0,
                   padx=18, pady=7, activebackground=ORANGE2,
+                  command=_guardar).pack(side="right")
+
+    # =========================================================================
+    # LISTA NEGRA  (hoja BLACKLIST en INGRESO_MASIVO.xlsx)
+    # =========================================================================
+    def _abrir_blacklist(self):
+        ruta = self._get_ruta_ingreso()
+        if not ruta or not os.path.isfile(ruta):
+            messagebox.showerror("Error",
+                "No se encontró INGRESO_MASIVO.\nConfigura la ruta en 'Cambiar rutas'.",
+                parent=self)
+            return
+
+        # Leer datos actuales desde la hoja Excel
+        filas_actuales = self._leer_hoja_excel(ruta, "BLACKLIST", 1)
+
+        dlg = tk.Toplevel(self)
+        dlg.title("Lista Negra — Tiendas Bloqueadas")
+        dlg.geometry("520x500")
+        dlg.configure(bg=BG)
+        dlg.resizable(True, True)
+        dlg.grab_set()
+        dlg.transient(self)
+
+        tk.Frame(dlg, bg=RED, height=3).pack(fill="x")
+
+        hdr = tk.Frame(dlg, bg=BG2)
+        hdr.pack(fill="x")
+        tk.Label(hdr, text="Lista Negra", bg=BG2, fg=WHITE,
+                 font=("Segoe UI",13,"bold")).pack(side="left", padx=20, pady=12)
+        tk.Label(hdr, text="Tiendas bloqueadas — jamás se ingresa en ellas",
+                 bg=BG2, fg=WHITE3, font=UI_SM).pack(side="left", padx=4)
+
+        # Indicador de fuente
+        tk.Label(hdr, text="● Excel", bg=BG2, fg=GREEN,
+                 font=("Segoe UI",7,"bold")).pack(side="right", padx=16)
+        tk.Frame(dlg, bg=BORDER, height=1).pack(fill="x")
+
+        tk.Label(dlg,
+                 text="  Escribe el nombre exactamente como aparece en la columna E del INGRESO_MASIVO.",
+                 bg=BG, fg=WHITE4, font=("Segoe UI",8)).pack(anchor="w", padx=16, pady=(8,2))
+        tk.Label(dlg,
+                 text="  Las filas de estas tiendas se marcarán BLOQ y no se procesarán.",
+                 bg=BG, fg=RED, font=("Segoe UI",8)).pack(anchor="w", padx=16, pady=(0,4))
+
+        # Encabezado tabla
+        enc = tk.Frame(dlg, bg=BG3)
+        enc.pack(fill="x", padx=16)
+        tk.Label(enc, text="Tienda bloqueada (nombre en Columna E)", bg=BG3, fg=WHITE3,
+                 font=("Segoe UI",8,"bold"), anchor="w").pack(
+                     side="left", padx=8, pady=5)
+        lbl_cnt = tk.Label(enc, text="", bg=BG3, fg=RED,
+                           font=("Segoe UI",8,"bold"))
+        lbl_cnt.pack(side="right", padx=8)
+
+        # Área scrollable
+        outer = tk.Frame(dlg, bg=BG)
+        outer.pack(fill="both", expand=True, padx=16, pady=4)
+        cvs = tk.Canvas(outer, bg=BG, highlightthickness=0)
+        vsb = tk.Scrollbar(outer, orient="vertical", command=cvs.yview)
+        cvs.configure(yscrollcommand=vsb.set)
+        vsb.pack(side="right", fill="y")
+        cvs.pack(side="left", fill="both", expand=True)
+        body = tk.Frame(cvs, bg=BG)
+        win  = cvs.create_window((0,0), window=body, anchor="nw")
+        body.bind("<Configure>",
+                  lambda e: cvs.configure(scrollregion=cvs.bbox("all")))
+        cvs.bind("<Configure>",
+                 lambda e: cvs.itemconfig(win, width=e.width))
+        cvs.bind("<MouseWheel>",
+                 lambda e: cvs.yview_scroll(int(-1*(e.delta/120)), "units"))
+
+        filas_bl = []
+
+        def _actualizar_cnt():
+            n = sum(1 for r in filas_bl if r is not None)
+            lbl_cnt.configure(text="{} bloqueada{}".format(n, "s" if n != 1 else ""))
+
+        def _agregar_fila(tienda=""):
+            fila_f = tk.Frame(body, bg=BG4,
+                              highlightbackground=BORDER2, highlightthickness=1)
+            fila_f.pack(fill="x", pady=2)
+
+            # Ícono de bloqueo
+            tk.Label(fila_f, text="🚫", bg=BG4, fg=RED,
+                     font=("Segoe UI",10)).pack(side="left", padx=(8,4))
+
+            var = tk.StringVar(value=tienda)
+            tk.Entry(fila_f, textvariable=var, bg=BG4, fg=RED,
+                     font=UI_SM, relief="flat", bd=0,
+                     highlightthickness=0,
+                     insertbackground=RED).pack(
+                         side="left", ipady=6, fill="x", expand=True)
+
+            idx = len(filas_bl)
+            def _del(i=idx):
+                try:
+                    filas_bl[i]["frame"].destroy()
+                    filas_bl[i] = None
+                    _actualizar_cnt()
+                except Exception:
+                    pass
+
+            tk.Button(fila_f, text="✕", bg=BG4, fg=WHITE4,
+                      font=("Segoe UI",9), relief="flat", cursor="hand2",
+                      bd=0, padx=8, pady=4, activebackground=BG3,
+                      command=_del).pack(side="right", padx=4)
+
+            filas_bl.append({"frame": fila_f, "v": var})
+            _actualizar_cnt()
+
+        for vals in filas_actuales:
+            _agregar_fila(vals[0] if vals else "")
+
+        _actualizar_cnt()
+
+        tk.Label(dlg,
+                 text="Guardado en: hoja BLACKLIST del INGRESO_MASIVO.xlsx  |  Tolerante a mayúsculas y tildes",
+                 bg=BG, fg=WHITE4, font=("Segoe UI",7)).pack(anchor="w", padx=16, pady=(0,2))
+
+        # Botones
+        bf = tk.Frame(dlg, bg=BG)
+        bf.pack(fill="x", padx=16, pady=10)
+
+        tk.Button(bf, text="+ Agregar tienda", bg=BG3, fg=RED,
+                  font=UI_SM, relief="flat", cursor="hand2",
+                  bd=0, padx=12, pady=7, activebackground=BG4,
+                  command=lambda: _agregar_fila()).pack(side="left", padx=(0,8))
+
+        def _guardar():
+            nuevas = []
+            for r in filas_bl:
+                if r is None:
+                    continue
+                v = r["v"].get().strip()
+                if v:
+                    nuevas.append((v,))
+
+            ok, err = self._guardar_hoja_excel(
+                ruta, "BLACKLIST",
+                ["TIENDA_BLOQUEADA"],
+                nuevas)
+
+            if ok:
+                self._log_add("✓ Lista negra guardada en Excel ({} tiendas bloqueadas).".format(
+                    len(nuevas)), "ok")
+                dlg.destroy()
+            else:
+                messagebox.showerror("Error",
+                    "No se pudo guardar en Excel:\n{}".format(err), parent=dlg)
+
+        tk.Button(bf, text="Cancelar", bg=BG3, fg=WHITE3,
+                  font=UI_SM, relief="flat", cursor="hand2",
+                  bd=0, padx=14, pady=7, activebackground=BG4,
+                  command=dlg.destroy).pack(side="left")
+
+        tk.Button(bf, text="  Guardar lista negra  ",
+                  bg=RED, fg=WHITE, font=UI_B,
+                  relief="flat", cursor="hand2", bd=0,
+                  padx=18, pady=7, activebackground="#CC0020",
                   command=_guardar).pack(side="right")
 
     # =========================================================================

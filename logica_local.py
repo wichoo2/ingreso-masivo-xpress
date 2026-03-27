@@ -11,6 +11,33 @@ from config_local import (
 )
 
 # =============================================================================
+# NORMALIZAR ID — convierte float a entero para comparaciones exactas
+# =============================================================================
+def normalizar_id(raw) -> str:
+    """
+    Convierte cualquier representación de ID a string entero limpio.
+    3936869   → '3936869'
+    3936869.0 → '3936869'
+    '3936869.0' → '3936869'
+    None / '' → ''
+    """
+    if raw is None:
+        return ""
+    if isinstance(raw, float):
+        return str(int(raw)) if raw == int(raw) else str(raw)
+    s = str(raw).strip()
+    if not s:
+        return ""
+    if "." in s:
+        try:
+            f = float(s)
+            if f == int(f):
+                return str(int(f))
+        except (ValueError, OverflowError):
+            pass
+    return s
+
+# =============================================================================
 # NORMALIZAR
 # =============================================================================
 def normalizar(txt) -> str:
@@ -22,6 +49,23 @@ def normalizar(txt) -> str:
     txt = re.sub(r"[^a-z0-9]", "", txt)
     return txt
 
+_RE_TIPO_SUFIJO = re.compile(
+    r"[\s\-_.,;()\[\]/]*(scge|pls|plus|lockers?|metrogalerias?|"
+    r"metropolitano|diamante|bonny|ss|sv)"
+    r"[\s\-_.,;()\[\]/]*$",
+    re.IGNORECASE,
+)
+
+def normalizar_sin_tipo(txt) -> str:
+    s = str(txt or "").strip()
+    for _ in range(4):
+        nuevo = _RE_TIPO_SUFIJO.sub("", s).strip()
+        if not nuevo or nuevo == s:
+            break
+        s = nuevo
+    resultado = normalizar(s)
+    return resultado if len(resultado) >= 4 else normalizar(txt)
+
 # =============================================================================
 # COMENTARIO PAQ / TYP
 # =============================================================================
@@ -30,21 +74,12 @@ def tiene_comentario_paq(comentario) -> bool:
     return "PAQ" in txt or "TYP" in txt or "T/P" in txt
 
 def extraer_num_paquetes(comentario) -> int:
-    """
-    Extrae la cantidad de paquetes del comentario.
-    Cubre: "2 PAQ", "PAQ2", "18PAQ", "PAQ-5", "PAQ,3",
-           "PAQ:3", "5-PAQ", "TYP", "T/P", "2TYP", etc.
-    """
     import re as _re
     txt = str(comentario).upper().strip()
     if not txt:
         return 1
-
-    # T/P siempre = 2
     if "T/P" in txt:
         return 2
-
-    # TYP: buscar numero asociado
     if "TYP" in txt:
         m = _re.search(r'(\d+)', txt)
         if m:
@@ -52,8 +87,6 @@ def extraer_num_paquetes(comentario) -> int:
             if 2 <= n <= 999:
                 return n
         return 2
-
-    # PAQ/PAQS/PAQUETE/PAQUETES: buscar cualquier numero en el texto
     if "PAQ" in txt:
         m = _re.search(r'(\d+)', txt)
         if m:
@@ -61,26 +94,20 @@ def extraer_num_paquetes(comentario) -> int:
             if 2 <= n <= 999:
                 return n
         return 2
-
     return 1
 
 # =============================================================================
 # TIPO DE SERVICIO
 # =============================================================================
 def obtener_tipo_servicio(valor_k) -> str:
-    """
-    Resuelve NRM/PLUS/ECO usando las ~1500 variantes de escritura.
-    Si no reconoce nada -> NRM por defecto (nunca FALTA en col tipo servicio).
-    """
     resultado = _svc.resolver_servicio(valor_k)
     if resultado in ("VACIO", "FALTA", "NINGUNO"):
-        return SERVICIO_DEFAULT  # NRM por defecto
-    return resultado  # NRM / PLUS / ECO
+        return SERVICIO_DEFAULT
+    return resultado
 
 def detectar_tipo_col_q(encabezado) -> str:
     if encabezado is None:
         return "NINGUNO"
-    # Normalizar: quitar puntos, comas, guiones para comparar
     enc = str(encabezado).upper().strip()
     enc = enc.replace(".", " ").replace(",", " ").replace("-", " ")
     enc = enc.replace("_", " ").replace("/", " ")
@@ -93,58 +120,31 @@ def detectar_tipo_col_q(encabezado) -> str:
     return "NINGUNO"
 
 # =============================================================================
-# DETECTAR COLUMNAS ESPECIALES EN HOJA DESTINO
-# Lee encabezados fila 5 y devuelve dict con columnas encontradas
+# DETECTAR COLUMNAS ESPECIALES
 # =============================================================================
 def _enc_norm_kw(txt) -> str:
-    """Normaliza encabezado: mayusculas, sin puntos/comas/guiones."""
     s = str(txt or "").upper().strip()
     for c in ".,_/-": s = s.replace(c, " ")
     return " ".join(s.split())
 
-
 def _coincide_enc(enc_norm, palabras_exactas):
-    """
-    True solo si el encabezado normalizado ES EXACTAMENTE
-    una de las palabras, o la CONTIENE como palabra completa.
-    Evita que "ECO" coincida con "F RECOLECTA" o "TECOMUNICACIONES".
-    """
     import re as _re
     for kw in palabras_exactas:
-        # Coincidencia exacta total
         if enc_norm == kw:
             return True
-        # Coincidencia como palabra completa (no substring de otra palabra)
         patron = r'(?<![A-Z0-9])' + _re.escape(kw) + r'(?![A-Z0-9])'
         if _re.search(patron, enc_norm):
             return True
     return False
 
-
 def detectar_cols_especiales(ws) -> dict:
-    """
-    Detecta columnas especiales leyendo encabezados en la fila de encabezado real.
-    Usa coincidencia de PALABRA COMPLETA para evitar falsos positivos.
-
-    Libros Metrogalerias   -> tienen "TIPO SERVICIO" o "MUNIC" -> col_q
-    Libros Metropolitanos  -> tienen "MUNICIPIO" o "CIUDAD"    -> col_q
-    Libros UT SOFTWARE     -> tienen "PAQUETES"                -> col_paq
-    Libros con orden ID    -> tienen "ORDEN ID"                -> col_oid
-    Libros normales        -> ninguna de las anteriores        -> todo 0
-    """
-    # Palabras que deben coincidir como PALABRA COMPLETA, no substring
-    KW_SERVICIO  = {"TIPO SERVICIO", "TIPO DE SERVICIO",
-                    "TIPOSERVICIO", "SCGE", "SERVICIO"}
+    KW_SERVICIO  = {"TIPO SERVICIO", "TIPO DE SERVICIO", "TIPOSERVICIO", "SCGE", "SERVICIO"}
     KW_MUNICIPIO = {"MUNICIPIO", "MUNIC", "CIUDAD", "LOCALIDAD",
-                    "DEPTO", "DEPARTAMENTO", "MUNICIPIO DESTINO",
-                    "MUNIC DESTINO"}
-    KW_PAQUETES  = {"PAQUETES", "PAQUETE", "CANTIDAD PAQUETES",
-                    "CANTIDAD PAQ", "NUM PAQUETES"}
-    KW_ORDEN_ID  = {"ORDEN ID", "ORDER ID", "ORDEN ID 2",
-                    "ORDER ID 2", "ID 2", "ID2"}
+                    "DEPTO", "DEPARTAMENTO", "MUNICIPIO DESTINO", "MUNIC DESTINO"}
+    KW_PAQUETES  = {"PAQUETES", "PAQUETE", "CANTIDAD PAQUETES", "CANTIDAD PAQ", "NUM PAQUETES"}
+    KW_ORDEN_ID  = {"ORDEN ID", "ORDER ID", "ORDEN ID 2", "ORDER ID 2", "ID 2", "ID2"}
 
     resultado = {"tipo_q": "NINGUNO", "col_q": 0, "col_paq": 0, "col_oid": 0}
-
     fila_enc = _buscar_fila_encabezado(ws)
 
     for col in range(1, 60):
@@ -179,41 +179,29 @@ def detectar_cols_especiales(ws) -> dict:
 # VALIDAR HOJA DESTINO
 # =============================================================================
 def _norm_enc(txt) -> str:
-    """Normaliza encabezado: sin puntos, comas, guiones, espacios extra."""
     import re as _re
     s = str(txt or "").upper().strip()
     s = s.replace(".", "").replace(",", "").replace("-", "").replace(
         "_", "").replace("/", "").replace(" ", "")
     return s
 
-# Mapa de encabezados validos normalizados -> columna esperada
 _ENCABEZADOS_NORM = None
 
 def _get_enc_norm():
     global _ENCABEZADOS_NORM
     if _ENCABEZADOS_NORM is None:
-        _ENCABEZADOS_NORM = {
-            col: _norm_enc(enc)
-            for col, enc in ENCABEZADOS_VALIDOS.items()
-        }
+        _ENCABEZADOS_NORM = {col: _norm_enc(enc) for col, enc in ENCABEZADOS_VALIDOS.items()}
     return _ENCABEZADOS_NORM
 
-
-_CACHE_FILA_ENC = {}  # id(ws) -> fila encabezado
+_CACHE_FILA_ENC = {}
 
 def _buscar_fila_encabezado(ws) -> int:
-    """
-    Busca la fila del encabezado buscando F.RECOLECTA en las primeras 15 filas.
-    Cachea el resultado por worksheet para no recalcular en cada operacion.
-    """
     ws_id = id(ws)
     if ws_id in _CACHE_FILA_ENC:
         return _CACHE_FILA_ENC[ws_id]
-
     clave      = "F.RECOLECTA"
     clave_norm = _norm_enc(clave)
-    fila_enc   = FILA_ENCABEZADO  # valor por defecto
-
+    fila_enc   = FILA_ENCABEZADO
     for fila in range(1, 16):
         for col in range(1, 25):
             val = ws.cell(row=fila, column=col).value
@@ -223,24 +211,47 @@ def _buscar_fila_encabezado(ws) -> int:
         else:
             continue
         break
-
     _CACHE_FILA_ENC[ws_id] = fila_enc
     return fila_enc
 
-
 def hoja_valida(ws) -> bool:
-    """Valida encabezados buscando la fila dinamicamente."""
+    """
+    Valida que la hoja tenga los encabezados esperados.
+    FIX 1: Los encabezados se validan relativos a donde está F.RECOLECTA,
+    no en columnas absolutas. Si una tienda agregó columnas al inicio,
+    la validación sigue funcionando.
+    FIX 2: Se eliminó el check de ws.protection.sheet — openpyxl puede
+    escribir en hojas con protección sin contraseña, y el check descartaba
+    hojas válidas que solo tienen protección de encabezados.
+    """
     fila_enc = _buscar_fila_encabezado(ws)
-    for col_1based, esperado in ENCABEZADOS_VALIDOS.items():
-        actual = str(ws.cell(row=fila_enc,
-                             column=col_1based).value or "").strip().upper()
-        if actual != esperado.upper():
+
+    # Encontrar la columna donde está F.RECOLECTA en esta hoja
+    col_recolecta = None
+    clave_norm = _norm_enc("F.RECOLECTA")
+    for col in range(1, 25):
+        val = ws.cell(row=fila_enc, column=col).value
+        if val and _norm_enc(str(val)) == clave_norm:
+            col_recolecta = col
+            break
+
+    if col_recolecta is None:
+        return False  # No encontró F.RECOLECTA
+
+    # Validar encabezados relativos a la posición de F.RECOLECTA
+    # ENCABEZADOS_VALIDOS tiene col 4 = F.RECOLECTA como referencia
+    # offset = col_recolecta - 4
+    offset = col_recolecta - 4
+    for col_base, esperado in ENCABEZADOS_VALIDOS.items():
+        col_real = col_base + offset
+        actual = str(ws.cell(row=fila_enc, column=col_real).value or "").strip().upper()
+        esperado_norm = esperado.strip().upper().replace(" ", "").replace(".", "")
+        actual_norm   = actual.replace(" ", "").replace(".", "")
+        if actual_norm != esperado_norm:
             return False
     return True
 
-
 def get_fila_encabezado(ws) -> int:
-    """Devuelve la fila real del encabezado en esta hoja."""
     return _buscar_fila_encabezado(ws)
 
 # =============================================================================
@@ -278,10 +289,16 @@ def _es_valor_real(v) -> bool:
         return False
     return True
 
+def _fila_tiene_id(ws, fila: int) -> bool:
+    """
+    Si col F (ID) tiene cualquier valor no vacío, la fila está ocupada.
+    Protección extra contra sobreescritura de filas con precio $0.
+    """
+    v = ws.cell(row=fila, column=COL_ID).value
+    return v is not None and str(v).strip() not in ("", "0")
 
 # =============================================================================
 # ULTIMA FILA CON DATOS REALES
-# Usa iter_rows vectorizado en el rango D:J — mas rapido que cell() por celda
 # =============================================================================
 def ultima_fila_con_datos(ws) -> int:
     col_ini    = COL_DATOS_INI
@@ -297,8 +314,27 @@ def ultima_fila_con_datos(ws) -> int:
     return ultima
 
 # =============================================================================
-# PRIMERA FILA LIBRE
+# PRIMERA FILA LIBRE — respeta la línea amarilla como barrera
+# MEJORA: inserta SIEMPRE antes de la última línea amarilla (no después).
+# Si no hay amarilla, comportamiento original (primera fila vacía al final).
 # =============================================================================
+def _buscar_ultima_amarilla(ws) -> int:
+    """
+    Devuelve la fila de la ÚLTIMA línea amarilla del archivo.
+    0 si no existe ninguna.
+    Solo busca en cols D:J para velocidad.
+    """
+    col_ini    = COL_DATOS_INI
+    col_fin    = COL_DATOS_INI + 6
+    fila_datos = _buscar_fila_encabezado(ws) + 1
+    ultima_am  = 0
+    for fila in range(fila_datos, ws.max_row + 1):
+        for col in range(col_ini, col_fin + 1):
+            if es_color_amarillo(ws.cell(row=fila, column=col)):
+                ultima_am = fila
+                break
+    return ultima_am
+
 def primera_fila_libre(ws, fila_base: int) -> int:
     fila_datos = _buscar_fila_encabezado(ws) + 1
     fila    = max(fila_base, fila_datos)
@@ -337,16 +373,49 @@ def primera_fila_libre_rapida(ws, fila_base: int) -> int:
                 return fila
         fila += 1
     return primera_fila_libre(ws, fila_base)
-
-# =============================================================================
-# ENCONTRAR COLUMNA LIBRE PARA COMENTARIO
-# Empieza en COL_DEST_COMENTAR (R), salta si tiene texto o color
-# =============================================================================
 def encontrar_col_comentario(ws, fila: int) -> int:
+    """
+    Busca la primera columna libre desde COL_DEST_COMENTAR hacia la derecha.
+    FIX: Ahora también salta celdas con:
+      - Fórmulas (valor empieza con '=')
+      - Estilos definidos (bordes, número de formato) que indican celda de plantilla
+      - Colores de fill (como antes)
+    Evita sobreescribir columnas de fórmulas de liquidación.
+    """
     for col in range(COL_DEST_COMENTAR, COL_DEST_COMENTAR + 30):
         celda = ws.cell(row=fila, column=col)
-        if celda.value is not None and str(celda.value).strip() != "":
-            continue
+
+        # 1. Tiene texto o fórmula — ocupada
+        v = celda.value
+        if v is not None:
+            sv = str(v).strip()
+            if sv != "":
+                continue  # texto visible
+            if sv.startswith("="):
+                continue  # fórmula vacía
+
+        # 2. Tiene número de formato personalizado — celda de plantilla
+        try:
+            nf = celda.number_format
+            if nf and nf not in (None, "General", "@", ""):
+                continue
+        except Exception:
+            pass
+
+        # 3. Tiene borde definido — celda de plantilla
+        try:
+            b = celda.border
+            if b and any([
+                b.left and b.left.style,
+                b.right and b.right.style,
+                b.top and b.top.style,
+                b.bottom and b.bottom.style,
+            ]):
+                continue
+        except Exception:
+            pass
+
+        # 4. Tiene color de fill distinto de blanco/transparente
         try:
             fill = celda.fill
             if fill and fill.fill_type not in (None, "none"):
@@ -361,21 +430,26 @@ def encontrar_col_comentario(ws, fila: int) -> int:
                         continue
         except Exception:
             pass
+
         return col
     return 0
 
 # =============================================================================
-# CARGAR IDs EN DESTINO
-# Usa iter_rows para acceso vectorizado — mas rapido que while celda a celda
+# CARGAR IDs EN DESTINO — MEJORA: normalizar float a entero
 # =============================================================================
 def cargar_ids_destino(ws) -> dict:
+    """
+    Carga todos los IDs existentes en el archivo de tienda.
+    MEJORA: normaliza IDs con normalizar_id() para que
+    '3936869' y '3936869.0' sean la misma clave.
+    """
     ids = {}
     fila_datos = _buscar_fila_encabezado(ws) + 1
     for row in ws.iter_rows(min_row=fila_datos, max_row=ws.max_row,
                              min_col=COL_ID, max_col=COL_ID, values_only=True):
         raw = row[0]
         if raw is not None:
-            v = str(raw).strip()
+            v = normalizar_id(raw)
             if v and not v.startswith("#"):
                 ids[v] = ids.get(v, 0) + 1
     return ids
@@ -396,9 +470,6 @@ def cargar_mapa_tiendas(ws_tiendas, fila_ini: int) -> dict:
 
 # =============================================================================
 # CONVERTIR VALOR AL TIPO CORRECTO
-# - Fechas  -> "12-mar"
-# - Numeros -> int o float
-# - Texto   -> texto limpio
 # =============================================================================
 def _convertir_valor(valor, es_fecha=False):
     if valor is None:
@@ -413,11 +484,8 @@ def _convertir_valor(valor, es_fecha=False):
                         break
                     except ValueError:
                         continue
-
-            # CAMBIO CLAVE: devolver datetime real, no string
             if isinstance(valor, (datetime, date)):
                 return valor
-
             return str(valor)
         except Exception:
             return str(valor)
@@ -434,9 +502,35 @@ def _convertir_valor(valor, es_fecha=False):
         return int(s_limpio) if "." not in s_limpio else float(s_limpio)
     except ValueError:
         return s
+
 # =============================================================================
-# INSERTAR PAQUETE
-# Solo toca: D:J, col tipo_q/municipio, col paquetes, col orden_id, comentario R
+# CONVERTIR ID PARA ESCRITURA — siempre entero si es número
+# =============================================================================
+def _convertir_id_escritura(raw):
+    """
+    Convierte el ID al formato correcto para escribir en la tienda.
+    Si es numérico → escribe como int (no como float).
+    Evita que quede '3936869.0' en col F.
+    """
+    if raw is None:
+        return None
+    if isinstance(raw, float):
+        return int(raw) if raw == int(raw) else raw
+    s = str(raw).strip()
+    if "." in s:
+        try:
+            f = float(s)
+            if f == int(f):
+                return int(f)
+        except (ValueError, OverflowError):
+            pass
+    try:
+        return int(s)
+    except (ValueError, TypeError):
+        return s if s else None
+
+# =============================================================================
+# INSERTAR PAQUETE — MEJORA: ID siempre como entero en col F
 # =============================================================================
 def insertar_paquete(ws, fila_dest, arr_datos, precio_cero,
                      valor_k, valor_m, valor_n,
@@ -444,8 +538,9 @@ def insertar_paquete(ws, fila_dest, arr_datos, precio_cero,
                      col_paq=0, col_oid=0,
                      forzar_sin_comentario=False):
 
-    COL_D = COL_DATOS_INI        # 4 = D
-    COL_J = COL_DATOS_INI + 6   # 10 = J
+    COL_D  = COL_DATOS_INI        # 4 = D
+    COL_J  = COL_DATOS_INI + 6   # 10 = J
+    COL_F  = COL_DATOS_INI + 2   # 6  = F (ID)
 
     # D:J — no tocar celdas con formula
     for j in range(7):
@@ -461,14 +556,16 @@ def insertar_paquete(ws, fila_dest, arr_datos, precio_cero,
             celda.value = 0
             continue
 
+        if col == COL_F:
+            # MEJORA: ID siempre como entero limpio — nunca '3936869.0'
+            celda.value = _convertir_id_escritura(valor)
+            continue
+
         es_fecha = (col == COL_DATOS_INI)
         celda.value = _convertir_valor(valor, es_fecha=es_fecha)
         if es_fecha and isinstance(celda.value, (datetime, date)):
             celda.number_format = "D-MMM"
 
-    # Tipo servicio / municipio
-    # PROTECCION: col_q debe estar fuera del rango D:J (cols 4-10)
-    # Si col_q apunta a una columna de datos, ignorar para no corromper
     if tipo_q in ("SERVICIO", "MUNICIPIO") and col_q > COL_J:
         celda_q = ws.cell(row=fila_dest, column=col_q)
         if tipo_q == "SERVICIO":
@@ -476,56 +573,43 @@ def insertar_paquete(ws, fila_dest, arr_datos, precio_cero,
         else:
             celda_q.value = str(valor_m).strip() if valor_m else ""
 
-    # Paquetes — solo si esta fuera del rango D:J
     if col_paq > COL_J:
         num_paq = extraer_num_paquetes(valor_n)
         ws.cell(row=fila_dest, column=col_paq).value = max(num_paq, 1)
 
-    # Orden ID — solo si esta fuera del rango D:J
     if col_oid > COL_J:
         val_oid = str(valor_k).strip() if valor_k else ""
         ws.cell(row=fila_dest, column=col_oid).value = val_oid if val_oid else "EN BLANCO"
 
-    # Comentario — en R o siguiente columna libre (sin texto ni color)
     if es_primero and tiene_comentario_paq(valor_n) and not forzar_sin_comentario:
         col_com = encontrar_col_comentario(ws, fila_dest)
         if col_com > 0:
             ws.cell(row=fila_dest, column=col_com).value = valor_n
 
 # =============================================================================
-# EVALUAR DUPLICADO
+# EVALUAR DUPLICADO — MEJORA: normalizar ID antes de comparar
 # =============================================================================
 def evaluar_duplicado(id_nuevo, valor_n, ids_existentes, num_paquetes):
     """
-    Reglas exactas:
+    MEJORA: id_nuevo se normaliza con normalizar_id() antes de comparar,
+    para que '3936869' y '3936869.0' sean tratados como el mismo ID.
 
-    1. Sin comentario PAQ/TYP:
-       - Siempre DUP — no importa si el ID existe o no.
-         Un paquete sin comentario de multiples solo se ingresa
-         la primera vez que aparece. Si ya existe o no tiene
-         comentario -> DUP.
-       EXCEPCION: si el ID no existe aun -> OK, insertar 1.
-
-    2. Con comentario PAQ/TYP:
-       - ID no existe -> OK, insertar los N paquetes juntos
-       - ID existe y ya tiene todos -> DUP
-       - ID existe y tiene algunos -> DUP (ya fue procesado antes,
-         no fragmentar — deben ir juntos de una sola vez)
-       - Mismo ID con comentario aparece dos veces en INGRESO:
-         el primero se procesa, el segundo es DUP
+    Motivos de DUP diferenciados:
+      DUP_EXISTE  → ID ya está en la tienda
+      DUP_SESION  → ID apareció dos veces en el INGRESO en la misma sesión
+      DUP_PAQ     → PAQ pero ID ya existe (no fragmentar)
     """
+    id_norm   = normalizar_id(id_nuevo)
     tiene_paq = tiene_comentario_paq(valor_n)
 
-    # Sin comentario: solo insertar si el ID es completamente nuevo
     if not tiene_paq:
-        if not id_nuevo or id_nuevo in ids_existentes:
-            return "DUP", 0
+        if not id_norm or id_norm in ids_existentes:
+            motivo = "DUP_EXISTE" if id_norm in ids_existentes else "DUP_VACIO"
+            return motivo, 0
         return "OK", 1
 
-    # Con comentario PAQ/TYP: ID debe ser completamente nuevo
-    # Si ya existe (parcial o total) -> DUP para no fragmentar
-    if not id_nuevo or id_nuevo in ids_existentes:
-        return "DUP", 0
+    if not id_norm or id_norm in ids_existentes:
+        motivo = "DUP_PAQ" if id_norm in ids_existentes else "DUP_VACIO"
+        return motivo, 0
 
-    # ID nuevo con comentario -> insertar todos juntos de una vez
     return "OK", num_paquetes
